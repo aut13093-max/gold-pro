@@ -95,6 +95,13 @@ input:focus,select:focus{border-color:var(--gold2);box-shadow:0 0 0 4px rgba(226
 .badge.warn{background:#fdeded;color:var(--red)}
 .badge.bear{background:#e8f8f0;color:var(--green)}
 .badge.sweep{background:var(--gold-light);color:var(--gold)}
+.sig-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px dashed #eee8da;font-size:12.5px;line-height:1.5}
+.sig-row .pts{flex:none;min-width:34px;text-align:center;font-weight:800;padding:2px 8px;border-radius:99px;background:#eef0f2;color:#8a9097}
+.sig-row .pts.pos{background:#e8f8f0;color:var(--green)}
+.sig-row .pts.neg{background:#fdeded;color:var(--red)}
+.check{display:flex;align-items:center;gap:10px;margin:14px 0;font-size:13px;font-weight:600;color:#4a5058}
+.check input{width:auto;margin:0;accent-color:#b8861b}
+.plan-note{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--gold-light);color:#8a6416;font-size:12px;line-height:1.6}
 footer{padding:26px 15px calc(26px + env(safe-area-inset-bottom,0px));text-align:center;color:var(--muted);font-size:11px}
 hr{border:0;border-top:1px solid var(--border);margin:14px 0}
 @media(max-width:800px){
@@ -146,6 +153,15 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
    <hr>
    <div class="small muted">Hệ thống không tự động vào lệnh.</div>
   </div>
+ </section>
+
+ <section class="card" id="signalCard">
+  <h3 class="section-title">ĐIỂM TÍN HIỆU &amp; KẾ HOẠCH LỆNH</h3>
+  <div class="small muted" id="sigHead" style="margin-bottom:6px">Đang chờ dữ liệu...</div>
+  <div id="sigItems"></div>
+  <label class="check"><input type="checkbox" id="newsBlock" onchange="setNewsBlock()"> Sắp có tin mạnh (CPI, NFP, FOMC...) trong 2 giờ tới → ép WAIT</label>
+  <div id="planBox"></div>
+  <div class="status" style="margin-top:13px">Điểm từ -9 đến +9: xu hướng 1D (±2), 4H (±2), khung đang chọn (±1), giá so với MA200 (±1), RSI14 (±1), bẫy/quét thanh khoản (±2). Từ +5 trở lên là nghiêng mua, từ -5 trở xuống là nghiêng bán. Tín hiệu bị chặn về WAIT khi dữ liệu cũ, thị trường đóng cửa, 1D và 4H ngược chiều, RSI cực đoan, giờ giao nhận cuối ngày hoặc bạn bật cảnh báo tin mạnh. Chưa gồm DXY và lợi suất trái phiếu Mỹ. Đây là công cụ tham khảo, không phải khuyến nghị đầu tư.</div>
  </section>
 
  <section class="card">
@@ -230,11 +246,11 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
   <div class="check-item" id="checkMacro">DXY / Lợi suất trái phiếu Mỹ / Lịch kinh tế · Chưa kết nối</div>
   <div class="status" style="margin-top:13px">
    Chưa tích hợp dữ liệu DXY, lợi suất trái phiếu Mỹ và lịch kinh tế trực tiếp.
-   Hệ thống mặc định WAIT, không xác nhận BUY hoặc SELL khi thiếu dữ liệu xác nhận.
+   Tín hiệu BUY/SELL chỉ là nghiêng theo kỹ thuật (xu hướng, RSI, bẫy). Khi có tin mạnh, hãy bật công tắc tin tức ở mục Điểm tín hiệu để ép WAIT.
   </div>
  </section>
 
- <section class="card">
+ <section class="card" id="riskCard">
   <h3 class="section-title">QUẢN LÝ VỊ THẾ VÀ RỦI RO</h3>
   <div class="grid grid2">
    <div>
@@ -844,6 +860,145 @@ function drawChart(candles,marks){
  svg.innerHTML=html;
 }
 
+const TF_LABEL={M15:"15M",H1:"1H",H4:"4H",D1:"1D"};
+let lastPlan=null;
+
+function isNewsBlock(){try{return localStorage.getItem("news_block")==="1"}catch(e){return false}}
+function setNewsBlock(){
+ try{localStorage.setItem("news_block",$("newsBlock").checked?"1":"0")}catch(e){}
+ renderTimeframe();
+}
+function sessionInfo(){
+ const h=new Date().getUTCHours();
+ if(h===21||h===22)return {name:"Giờ giao nhận cuối ngày (spread rộng)",warn:true};
+ if(h<7||h>=22)return {name:"Phiên Á",warn:false};
+ if(h<12)return {name:"Phiên Âu",warn:false};
+ if(h<16)return {name:"Âu–Mỹ chồng phiên (biến động mạnh)",warn:false};
+ return {name:"Phiên Mỹ",warn:false};
+}
+
+function computeSignal(c,traps,fresh,tfl){
+ const n=c.length;
+ const res={verdict:"WAIT",lean:"WAIT",score:0,max:9,items:[],blocks:[],plan:null,conf:""};
+ if(n<30){res.blocks.push("Chưa đủ dữ liệu (cần ít nhất 30 nến)");return res}
+ const last=n-1,close=c[last].close;
+ const T=v=>v==="Tăng"?1:v==="Giảm"?-1:0;
+ const add=(name,pts,note)=>{res.items.push({name,pts,note});res.score+=pts};
+ const d1=trendFromCandles(allD1),h4=trendFromCandles(allH4),cur=trendFromCandles(c);
+ add("Xu hướng ngày (1D)",2*T(d1),d1);
+ add("Xu hướng 4H",2*T(h4),h4);
+ add("Xu hướng khung "+tfl,T(cur),cur);
+ const m200=sma(c,200)[last];
+ if(m200!==null)add("Giá so với MA200 ("+tfl+")",close>m200?1:-1,close>m200?"Trên MA200":"Dưới MA200");
+ else add("Giá so với MA200 ("+tfl+")",0,"Chưa đủ 200 nến");
+ const r=rsi(c,14)[last];
+ let rp=0,rn="Chưa đủ dữ liệu";
+ if(r!==null){
+  if(r>=75)rn="Quá mua "+r.toFixed(1)+" · không đuổi mua";
+  else if(r<=25)rn="Quá bán "+r.toFixed(1)+" · không đuổi bán";
+  else if(r>=55){rp=1;rn="Động lượng tăng "+r.toFixed(1)}
+  else if(r<=45){rp=-1;rn="Động lượng giảm "+r.toFixed(1)}
+  else rn="Trung tính "+r.toFixed(1);
+ }
+ add("RSI14",rp,rn);
+ let tp=0,tn="Không phát hiện bẫy";
+ if(traps){
+  if(traps.bear&&traps.bull)tn="Tín hiệu bẫy trái chiều";
+  else if(traps.bear){tp=2;tn="Bẫy giảm (dụ bán) → nghiêng mua"}
+  else if(traps.bull){tp=-2;tn="Bẫy tăng (dụ mua) → nghiêng bán"}
+  else if(traps.sweep){tp=traps.sweep.dir==="down"?1:-1;tn=traps.sweep.dir==="down"?"Quét đáy rồi thu hồi":"Quét đỉnh rồi bị đẩy xuống"}
+ }
+ add("Bẫy / quét thanh khoản",tp,tn);
+
+ res.lean=res.score>=5?"BUY":res.score<=-5?"SELL":"WAIT";
+ if(!fresh)res.blocks.push("dữ liệu đã cũ");
+ if(marketClosedNow())res.blocks.push("thị trường vàng đóng cửa cuối tuần");
+ if(isNewsBlock())res.blocks.push("bạn đã bật cảnh báo tin mạnh");
+ if(T(d1)*T(h4)===-1)res.blocks.push("1D và 4H ngược chiều");
+ if(res.lean==="BUY"&&r!==null&&r>=75)res.blocks.push("RSI quá mua");
+ if(res.lean==="SELL"&&r!==null&&r<=25)res.blocks.push("RSI quá bán");
+ const ss=sessionInfo();
+ if(ss.warn)res.blocks.push(ss.name.toLowerCase());
+
+ if(res.lean!=="WAIT"&&res.blocks.length===0){
+  res.verdict=res.lean;
+  res.conf=Math.abs(res.score)>=7?"Mạnh":"Trung bình";
+  const a=atr(c,14)[last],dir=res.verdict==="BUY"?1:-1,risk=1.5*a,notes=[];
+  const lv=getSupportResistance(allH4);
+  const tp1=close+dir*1.5*risk;
+  if(dir===1&&lv.resistance!==null&&lv.resistance>close&&tp1>lv.resistance)notes.push("TP1 vượt kháng cự H4 "+formatPrice(lv.resistance)+": cân nhắc chốt sớm hơn.");
+  if(dir===-1&&lv.support!==null&&lv.support<close&&tp1<lv.support)notes.push("TP1 vượt hỗ trợ H4 "+formatPrice(lv.support)+": cân nhắc chốt sớm hơn.");
+  res.plan={dir:res.verdict,entry:close,sl:close-dir*risk,tp1,tp2:close+dir*2.5*risk,risk,notes};
+ }
+ return res;
+}
+
+function renderSignal(sig,traps,tfl){
+ const v=sig.verdict;
+ $("mainSignal").textContent=v;
+ $("mainSignal").className="signal"+(v==="BUY"?" buy":v==="SELL"?" sell":"");
+ const sc=(sig.score>0?"+":"")+sig.score;
+ let reason;
+ if(v!=="WAIT")reason="Điểm "+sc+"/"+sig.max+" · Độ tin cậy "+sig.conf+" · khung "+tfl+". Chỉ dựa trên kỹ thuật, chưa gồm DXY và lợi suất trái phiếu Mỹ.";
+ else if(sig.lean!=="WAIT")reason="Kỹ thuật nghiêng "+(sig.lean==="BUY"?"mua":"bán")+" ("+sc+") nhưng bị chặn: "+sig.blocks.join("; ")+".";
+ else if(sig.blocks.length)reason="Quan sát: "+sig.blocks.join("; ")+".";
+ else reason="Điểm "+sc+"/"+sig.max+" chưa đủ ±5, chưa có lợi thế rõ.";
+ if(traps&&["fake","bull","bear","sweep","sup","res"].some(k=>traps[k]))reason+=" ⚠ Có cảnh báo bẫy, xem mục Nhận diện bẫy.";
+ $("signalReason").textContent=reason;
+
+ $("sigHead").textContent="Khung "+tfl+" · điểm "+sc+"/±"+sig.max+" · "+sessionInfo().name;
+ const box=$("sigItems");
+ box.innerHTML="";
+ for(const it of sig.items){
+  const row=document.createElement("div");row.className="sig-row";
+  const left=document.createElement("div");
+  const b=document.createElement("b");b.textContent=it.name;
+  const sm=document.createElement("div");sm.className="small muted";sm.textContent=it.note;
+  left.appendChild(b);left.appendChild(sm);
+  const p=document.createElement("span");
+  p.className="pts"+(it.pts>0?" pos":it.pts<0?" neg":"");
+  p.textContent=(it.pts>0?"+":"")+it.pts;
+  row.appendChild(left);row.appendChild(p);box.appendChild(row);
+ }
+
+ const pb=$("planBox");
+ pb.innerHTML="";
+ lastPlan=sig.plan;
+ if(!sig.plan){
+  const d=document.createElement("div");d.className="status";
+  d.textContent=sig.blocks.length?"Chưa có kế hoạch lệnh: "+sig.blocks.join("; ")+".":"Chưa có kế hoạch lệnh: điểm chưa đạt ±5.";
+  pb.appendChild(d);
+  return;
+ }
+ const p=sig.plan,f=formatPrice,grid=document.createElement("div");
+ grid.className="grid grid4";
+ const cells=[["Hướng",p.dir,p.dir==="BUY"?"green":"red"],["Vào lệnh (tham chiếu)",f(p.entry),""],["Cắt lỗ (1.5 ATR)",f(p.sl),"red"],["TP1 (1.5R)",f(p.tp1),"green"],["TP2 (2.5R)",f(p.tp2),"green"],["Khoảng rủi ro",f(p.risk)+" USD",""]];
+ for(const [l,v2,cls] of cells){
+  const m=document.createElement("div");m.className="metric";
+  const a=document.createElement("div");a.className="label";a.textContent=l;
+  const b=document.createElement("div");b.className="value "+cls;b.textContent=v2;
+  m.appendChild(a);m.appendChild(b);grid.appendChild(m);
+ }
+ pb.appendChild(grid);
+ if(p.notes.length){const n=document.createElement("div");n.className="plan-note";n.textContent=p.notes.join(" ");pb.appendChild(n)}
+ const note=document.createElement("div");note.className="plan-note";
+ note.textContent="Giá vào lệnh là giá đóng cửa nến gần nhất, hãy thay bằng giá thực tế trên sàn của bạn trước khi tính khối lượng.";
+ pb.appendChild(note);
+ const btn=document.createElement("button");btn.className="btn-gold";btn.style.marginTop="12px";
+ btn.textContent="DÙNG KẾ HOẠCH NÀY ĐỂ TÍNH KHỐI LƯỢNG";btn.onclick=usePlan;
+ pb.appendChild(btn);
+}
+
+function usePlan(){
+ if(!lastPlan)return;
+ $("entryPrice").value=lastPlan.entry.toFixed(2);
+ $("stopPrice").value=lastPlan.sl.toFixed(2);
+ $("tradeDirection").value=lastPlan.dir;
+ calculatePosition();
+ const rc=$("riskCard");
+ if(rc&&rc.scrollIntoView)rc.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
 function selectTimeframe(tf){
  currentTimeframe=tf;
  if(tf==="M15"&&!allM15.length&&!loadingM15)loadM15();
@@ -862,8 +1017,7 @@ function renderTimeframe(){
   $("lastCandleTime").textContent="—";
   $("indicatorStatus").textContent="Thiếu dữ liệu";
   ["ma20Value","ma50Value","ma200Value","rsiValue","atrValue"].forEach(id=>$(id).textContent="—");
-  $("mainSignal").textContent="WAIT";
-  $("signalReason").textContent="Chưa có đủ dữ liệu lịch sử hợp lệ.";
+  renderSignal(computeSignal(candles,null,false,TF_LABEL[currentTimeframe]||currentTimeframe),null,TF_LABEL[currentTimeframe]||currentTimeframe);
   drawChart([]);
   renderTraps(null,false);
   updateChecklist();
@@ -889,11 +1043,8 @@ function renderTimeframe(){
  const traps=detectTraps(candles);
  drawChart(candles,traps?traps.marks:[]);
  renderTraps(traps,!fresh);
- $("mainSignal").textContent="WAIT";
- $("signalReason").textContent=(!fresh
-  ?"Dữ liệu "+currentTimeframe+" đã cũ. Chờ dữ liệu mới."
-  :"Chưa có xác nhận DXY, lợi suất trái phiếu Mỹ và lịch kinh tế. Chưa xác nhận lệnh.")
-  +(traps&&["fake","bull","bear","sweep","sup","res"].some(k=>traps[k])?" ⚠ Có cảnh báo bẫy giao dịch, xem mục Nhận diện bẫy.":"");
+ const tfl=TF_LABEL[currentTimeframe]||currentTimeframe;
+ renderSignal(computeSignal(candles,traps,fresh,tfl),traps,tfl);
  updateChecklist();
 }
 
@@ -960,6 +1111,7 @@ async function refreshAll(){
 }
 
 initKeyBox();
+$("newsBlock").checked=isNewsBlock();
 updateGold();
 setInterval(updateGold,60000);
 loadHistory().then(()=>loadH1());
