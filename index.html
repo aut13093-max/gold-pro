@@ -168,7 +168,7 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
    <button class="active" data-tf="H4" onclick="selectTimeframe('H4')">H4</button>
    <button data-tf="H1" onclick="selectTimeframe('H1')">H1</button>
    <button data-tf="D1" onclick="selectTimeframe('D1')">D1</button>
-   <button data-tf="W1" onclick="selectTimeframe('W1')">W1</button>
+   <button data-tf="M15" onclick="selectTimeframe('M15')">M15</button>
   </div>
   <div class="small muted" id="chartInfo" style="margin-bottom:11px">Đang chờ dữ liệu...</div>
   <div class="chart-wrap">
@@ -294,7 +294,11 @@ let allH4=[],allH1=[],allD1=[],allW1=[];
 let currentTimeframe="H4",loadingH4=false,loadingH1=false;
 const BINANCE_KLINES="https://api.binance.com/api/v3/klines";
 const BINANCE_PRICE="https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT";
-let sourceH4="AlgoSpecial",sourceH1="AlgoSpecial";
+let sourceH4="AlgoSpecial",sourceH1="AlgoSpecial",sourceM15="AlgoSpecial";
+let allM15=[],loadingM15=false;
+const TF_TD={M15:"15min",H1:"1h",H4:"4h"};
+const TF_BN={M15:"15m",H1:"1h",H4:"4h"};
+function sourceOf(tf){return tf==="H1"?sourceH1:tf==="M15"?sourceM15:sourceH4}
 const TD_URL="https://api.twelvedata.com";
 let lastTdPriceTime=0;
 
@@ -454,7 +458,7 @@ async function fetchPeriodRange(days,tf,onProgress){
 }
 
 async function fetchBinance(tf){
- const interval=tf==="H4"?"4h":"1h";
+ const interval=TF_BN[tf]||"1h";
  const r=await fetch(BINANCE_KLINES+"?symbol=PAXGUSDT&interval="+interval+"&limit=1000",{cache:"no-store"});
  if(!r.ok)throw new Error("Binance HTTP "+r.status);
  const rows=await r.json();
@@ -464,7 +468,7 @@ async function fetchBinance(tf){
 }
 
 async function fetchTwelve(tf,key){
- const interval=tf==="H4"?"4h":"1h";
+ const interval=TF_TD[tf]||"1h";
  const url=TD_URL+"/time_series?symbol=XAU/USD&interval="+interval+"&outputsize=1000&timezone=UTC&order=ASC&apikey="+encodeURIComponent(key);
  const r=await fetch(url,{cache:"no-store"});
  const j=await r.json();
@@ -486,7 +490,7 @@ async function getSeries(tf,progress){
    tdNote=" · Twelve Data chưa có dữ liệu mới";
   }catch(e){tdNote=" · Twelve Data lỗi: "+e.message}
  }
- const result=await fetchPeriodRange(HISTORY_DAYS,tf,progress);
+ const result=await fetchPeriodRange(tf==="M15"?15:HISTORY_DAYS,tf,progress);
  let data=result.data,source="AlgoSpecial",note=tdNote;
  if(!isRecentData(data,tf)){
   try{
@@ -535,6 +539,22 @@ async function loadH1(){
  }catch(error){
   setHistoryMessage("Không tải được H1: "+error.message,"error");
  }finally{loadingH1=false}
+}
+
+async function loadM15(){
+ if(loadingM15)return;
+ loadingM15=true;
+ setHistoryMessage("Đang tải dữ liệu M15...");
+ try{
+  const r=await getSeries("M15",m=>setHistoryMessage("Đang tải "+m));
+  if(r.data.length<2)throw new Error("Không tìm thấy đủ dữ liệu M15");
+  allM15=r.data;sourceM15=r.source;
+  setHistoryMessage(historyText("M15",r),r.errors.length&&r.source==="AlgoSpecial"?"normal":"success");
+  if(currentTimeframe==="M15")renderTimeframe();
+ }catch(error){
+  setHistoryMessage("Không tải được M15: "+error.message,"error");
+  if(currentTimeframe==="M15")renderTimeframe();
+ }finally{loadingM15=false}
 }
 
 function aggregateCandles(candles,type){
@@ -641,7 +661,7 @@ function marketClosedNow(){
 function isRecentData(candles,timeframe){
  if(!candles.length)return false;
  const age=(Date.now()-candles[candles.length-1].time.getTime())/3600000;
- const limits={H1:8,H4:36,D1:72,W1:240};
+ const limits={M15:2,H1:8,H4:36,D1:72,W1:240};
  const limit=limits[timeframe]+(marketClosedNow()?56:0);
  return age>=-1&&age<=limit;
 }
@@ -826,11 +846,12 @@ function drawChart(candles,marks){
 
 function selectTimeframe(tf){
  currentTimeframe=tf;
+ if(tf==="M15"&&!allM15.length&&!loadingM15)loadM15();
  document.querySelectorAll("[data-tf]").forEach(b=>b.classList.toggle("active",b.dataset.tf===tf));
  renderTimeframe();
 }
 function getCurrentCandles(){
- return {H4:allH4,H1:allH1,D1:allD1,W1:allW1}[currentTimeframe]||[];
+ return {H4:allH4,H1:allH1,D1:allD1,M15:allM15}[currentTimeframe]||[];
 }
 
 function renderTimeframe(){
@@ -851,7 +872,7 @@ function renderTimeframe(){
  const last=candles.length-1;
  const ma20=sma(candles,20),ma50=sma(candles,50),ma200=sma(candles,200);
  const rsiValues=rsi(candles,14),atrValues=atr(candles,14);
- $("chartInfo").textContent=currentTimeframe+" ["+(currentTimeframe==="H1"?sourceH1:sourceH4)+"] · "+candles.length+" nến · "+formatDate(candles[0].time)+" đến "+formatDate(candles[last].time);
+ $("chartInfo").textContent=currentTimeframe+" ["+sourceOf(currentTimeframe)+"] · "+candles.length+" nến · "+formatDate(candles[0].time)+" đến "+formatDate(candles[last].time);
  $("candleCount").textContent=candles.length;
  $("lastCandleTime").textContent=formatDate(candles[last].time);
  $("ma20Value").textContent=ma20[last]===null?"Chưa đủ dữ liệu":formatPrice(ma20[last]);
@@ -931,6 +952,7 @@ async function refreshAll(){
   await updateGold();
   await loadHistory();
   await loadH1();
+  if(currentTimeframe==="M15"||allM15.length)await loadM15();
  }finally{
   button.disabled=false;
   button.textContent="↻ Làm mới";
