@@ -302,23 +302,26 @@ function parseCandleTime(value){
 }
 
 function findPrice(data){
- if(typeof data==="number")return data;
- if(typeof data==="string"){const n=Number(data);return Number.isFinite(n)?n:null}
+ const ok=n=>Number.isFinite(n)&&n>500&&n<20000;
+ if(typeof data==="number")return ok(data)?data:null;
+ if(typeof data==="string"){const n=parseFloat(data.replace(/,/g,""));return ok(n)?n:null}
+ if(Array.isArray(data)){for(const it of data){const f=findPrice(it);if(f!==null)return f}return null}
  if(!data||typeof data!=="object")return null;
- for(const key of ["price","last","lastPrice","spot","ask","bid","value","rate"]){
-  if(data[key]!==undefined){const n=Number(data[key]);if(Number.isFinite(n))return n}
+ for(const k of ["price","last","lastPrice","spot","mid","ask","bid","value","rate","close","c","p","a","b"]){
+  if(data[k]!==undefined){const f=findPrice(data[k]);if(f!==null)return f}
  }
- for(const key of ["data","result","quote"]){
-  if(data[key]){const f=findPrice(data[key]);if(f!==null)return f}
- }
+ for(const v of Object.values(data)){const f=findPrice(v);if(f!==null)return f}
  return null;
 }
 async function updateGold(){
  try{
   const response=await fetch(SPOT_URL,{cache:"no-store"});
   if(!response.ok)throw new Error("HTTP "+response.status);
-  const price=findPrice(await response.json());
-  if(price===null)throw new Error("Không nhận diện được giá XAUS");
+  const text=await response.text();
+  let data;
+  try{data=JSON.parse(text)}catch(e){data=text}
+  const price=findPrice(data);
+  if(price===null)throw new Error("Không đọc được giá. Dữ liệu trả về: "+text.slice(0,120));
   $("goldPrice").textContent=formatPrice(price);
   $("goldUpdate").textContent="Nguồn XAUS · Cập nhật: "+new Date().toLocaleString("vi-VN");
  }catch(error){
@@ -506,12 +509,16 @@ function atr(candles,period=14){
 }
 
 function trendFromCandles(candles){
- if(candles.length<50)return "Chưa đủ dữ liệu";
- const ma20=sma(candles,20),ma50=sma(candles,50);
+ let a=20,b=50;
+ if(candles.length<50){
+  if(candles.length<12)return "Chưa đủ dữ liệu";
+  a=5;b=10;
+ }
+ const ma1=sma(candles,a),ma2=sma(candles,b);
  const last=candles.length-1,close=candles[last].close;
- if(ma20[last]===null||ma50[last]===null)return "Chưa đủ dữ liệu";
- if(close>ma20[last]&&ma20[last]>ma50[last])return "Tăng";
- if(close<ma20[last]&&ma20[last]<ma50[last])return "Giảm";
+ if(ma1[last]===null||ma2[last]===null)return "Chưa đủ dữ liệu";
+ if(close>ma1[last]&&ma1[last]>ma2[last])return "Tăng";
+ if(close<ma1[last]&&ma1[last]<ma2[last])return "Giảm";
  return "Đi ngang";
 }
 function getSupportResistance(candles){
