@@ -1,188 +1,350 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1018">
 <title>GOLD PRO - Phân tích vàng thông minh</title>
 <style>
-:root{--bg:#f6f3ec;--bg2:#ffffff;--card:#ffffff;--card2:#faf7f0;--line:#e4dcc9;--gold:#a87a14;--gold2:#c99a2e;--text:#1c1a14;--muted:#6f6a5c;--green:#16845f;--red:#c2410c;--glow:rgba(201,154,46,.18);color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#080c12;--bg2:#0b1119;--card:#111a25;--card2:#0c141d;--line:#223142;--gold:#e7bd65;--gold2:#f5d58a;--text:#f2f4f7;--muted:#8a98a8;--green:#42c89a;--red:#f0866a;--glow:rgba(231,189,101,.14);color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#080c12;--bg2:#0b1119;--card:#111a25;--card2:#0c141d;--line:#223142;--gold:#e7bd65;--gold2:#f5d58a;--text:#f2f4f7;--muted:#8a98a8;--green:#42c89a;--red:#f0866a;--glow:rgba(231,189,101,.14);color-scheme:dark}
-html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px);scroll-behavior:smooth}
+:root{--bg:#f5f1e8;--card:#fff;--text:#252116;--muted:#777064;--line:#e5dcc9;--gold:#b58a32;--green:#16845f;--red:#c2410c}
+:root[data-theme=dark]{--bg:#080d14;--card:#111a25;--text:#f2f4f7;--muted:#9aa6b5;--line:#293747;--gold:#e7bd65;--green:#42c89a;--red:#f0866a}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(900px 400px at 85% -5%,var(--glow),transparent 60%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg2);z-index:20}
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:19;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 5%;background:color-mix(in srgb,var(--bg2) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.logo{font-weight:800;letter-spacing:3px;font-size:20px;display:flex;align-items:center;gap:9px}
-.logo i{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--gold2),var(--gold));display:inline-block;box-shadow:0 0 18px var(--glow)}
-.logo span{color:var(--gold)}
-.by{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:2px 8px;margin-left:4px;text-transform:none}
-.right{display:flex;gap:8px;align-items:center}
-.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:11px;color:var(--muted);background:var(--card)}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:p 2s infinite}
-@keyframes p{50%{opacity:.25}}
-button{font:inherit;cursor:pointer;color:inherit}
-.ic{border:1px solid var(--line);background:var(--card);border-radius:99px;width:34px;height:34px}
-main{max-width:1200px;margin:auto;padding:34px 18px 20px}
-.label{color:var(--gold);letter-spacing:3px;font-size:11px;font-weight:700}
-h1{font-size:clamp(28px,5vw,44px);margin:10px 0;line-height:1.15;letter-spacing:-.5px}
-h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{color:var(--muted);max-width:640px;margin:0 0 26px}
-.grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
-.card{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 10px 30px -18px rgba(0,0,0,.45)}
-.ct{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;letter-spacing:1px;margin-bottom:14px}
-.small{color:var(--muted);font-size:11px;font-weight:400;letter-spacing:0}
-.price{font-size:clamp(32px,6vw,44px);font-weight:800;margin:4px 0;letter-spacing:2px;color:var(--gold)}
-.tabs{display:flex;gap:6px;margin:14px 0 10px;overflow-x:auto}
-.tab{border:1px solid var(--line);background:transparent;border-radius:99px;padding:5px 14px;font-size:12px;color:var(--muted)}
-.tab.on{background:var(--gold);color:#16120a;border-color:var(--gold);font-weight:700}
-.chart{height:210px;border-radius:12px;border:1px solid var(--line);position:relative;overflow:hidden;background:repeating-linear-gradient(to bottom,transparent 0 51px,var(--line) 52px),var(--card2)}
-.chart svg{width:100%;height:100%;display:block}
-.line{stroke-dasharray:1400;stroke-dashoffset:1400;animation:d 2.2s ease forwards}
-@keyframes d{to{stroke-dashoffset:0}}
-.note{position:absolute;left:10px;bottom:7px;font-size:10px;color:var(--muted)}
-.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
-.metric{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px}
-.metric small{color:var(--muted);font-size:11px}.metric strong{display:block;margin-top:6px;font-size:13px}
-.signal{border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:16px;margin-bottom:12px;background:var(--card2)}
-.signal b{font-size:30px;color:var(--gold);letter-spacing:2px}
-.signal p{margin:2px 0 0;color:var(--muted);font-size:12px}
-.row{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}
-.row:last-child{border:0}.row span{color:var(--muted)}
-.section{margin-top:26px}
-.section h2{font-size:18px;margin:0 0 4px}
-.section>p{color:var(--muted);font-size:13px;margin:0 0 14px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:13px 5%;display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:900;letter-spacing:3px;font-size:21px}.logo span{color:var(--gold)}
+.by{font-size:10px;color:var(--muted);letter-spacing:1px;margin-left:7px}
+button{cursor:pointer}
+.theme{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:20px;padding:8px 13px}
+main{max-width:1150px;margin:auto;padding:28px 16px}
+.label{font-size:11px;color:var(--gold);letter-spacing:3px;font-weight:bold}
+h1{font-size:clamp(28px,5vw,42px);margin:8px 0}
+h1 span{color:var(--gold)}
+.intro{color:var(--muted);font-size:14px;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:19px;margin-bottom:16px}
+.heading{font-size:13px;font-weight:bold;letter-spacing:1px;display:flex;justify-content:space-between;gap:8px;margin-bottom:13px}
+.muted{font-size:11px;color:var(--muted)}
+.price{font-size:clamp(32px,7vw,45px);font-weight:800;color:var(--gold);overflow-wrap:anywhere;margin:5px 0}
+.status{font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:7px;margin:17px 0 12px}
+.tab{border:1px solid var(--line);border-radius:20px;background:transparent;color:var(--muted);padding:6px 15px}
+.tab.active{background:var(--gold);color:#17130b;border-color:var(--gold);font-weight:bold}
+.chart{height:190px;border:1px solid var(--line);border-radius:12px;background:repeating-linear-gradient(to bottom,transparent 0 46px,var(--line) 47px),var(--bg);position:relative;overflow:hidden}
+.chart svg{width:100%;height:100%}
+.chart-note{position:absolute;bottom:5px;left:8px;font-size:10px;color:var(--muted)}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.metric{padding:11px;background:var(--bg);border-radius:10px;border:1px solid var(--line)}
+.metric small{display:block;color:var(--muted);font-size:11px}
+.metric b{font-size:13px}
+.signal{background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--gold);padding:15px;border-radius:10px;margin-bottom:12px}
+.signal b{font-size:30px;color:var(--gold)}
+.signal p{font-size:12px;color:var(--muted);margin:0}
+.row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.row:last-child{border:0}
+.row span{color:var(--muted)}
+.section{margin-top:23px}
+.section h2{font-size:19px;margin-bottom:4px}
+.section>p{font-size:13px;color:var(--muted);margin-top:0}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.chk{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;font-size:13px;cursor:pointer;background:var(--card2)}
-.chk input{accent-color:var(--gold);width:17px;height:17px}
-.chk:has(input:checked){border-color:var(--gold);background:var(--glow)}
-.bar{height:8px;border-radius:9px;background:var(--line);overflow:hidden;margin:6px 0 10px}
-.bar div{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--green));transition:width .3s}
-.f{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-label.fl{font-size:11px;color:var(--muted);display:block}
-input[type=number]{width:100%;margin-top:4px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--text);font:inherit;font-size:16px}
-input[type=number]:focus{outline:2px solid var(--gold);outline-offset:0}
-.res{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
-.res div{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px}
-.res small{color:var(--muted);font-size:11px;display:block}.res b{font-size:18px}
-.features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.feature{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;transition:transform .2s,border-color .2s}
-.feature:hover{transform:translateY(-3px);border-color:var(--gold)}
-.feature h3{margin:0 0 6px;font-size:13px;color:var(--gold);letter-spacing:1px}
-.feature p{margin:0;font-size:13px;color:var(--muted)}
-.notice{margin-top:22px;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:14px;font-size:12px;color:var(--muted);background:var(--card)}
-footer{border-top:1px solid var(--line);padding:24px;text-align:center;color:var(--muted);font-size:11px}
-@media(max-width:780px){.grid,.two,.features{grid-template-columns:1fr}main{padding:24px 14px}.pill.hide{display:none}.metrics{gap:6px}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.line{stroke-dashoffset:0}}
+.check{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:10px;margin:8px 0;font-size:13px}
+.check input{accent-color:var(--gold);width:17px;height:17px}
+.bar{height:7px;background:var(--line);border-radius:8px;overflow:hidden;margin:8px 0}
+.bar div{height:100%;width:0;background:var(--gold);transition:width .2s}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label.field{font-size:12px;color:var(--muted)}
+input[type=number]{display:block;width:100%;margin-top:5px;padding:11px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:16px}
+.results{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.result{padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.result small{display:block;color:var(--muted);font-size:11px}
+.result b{font-size:17px;overflow-wrap:anywhere}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.feature{background:var(--card);border:1px solid var(--line);padding:15px;border-radius:12px}
+.feature b{color:var(--gold);font-size:13px}
+.feature p{color:var(--muted);font-size:12px;margin-bottom:0}
+.notice{margin-top:20px;padding:14px;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:10px;color:var(--muted);font-size:12px;background:var(--card)}
+footer{text-align:center;padding:25px;color:var(--muted);font-size:11px;border-top:1px solid var(--line)}
+@media(max-width:760px){.grid,.two,.features{grid-template-columns:1fr}main{padding:23px 13px}}
 </style>
 </head>
 <body>
+
 <header>
-  <div class="logo"><i></i>GOLD <span>PRO</span><small class="by">by cuong</small></div>
-  <div class="right"><span class="pill hide"><span class="dot"></span>CHỜ NGUỒN DỮ LIỆU</span><button class="ic" id="th" aria-label="Đổi giao diện">◐</button></div>
+  <div class="logo">GOLD <span>PRO</span><small class="by">by cuong</small></div>
+  <button class="theme" id="themeBtn">◐ Theme</button>
 </header>
+
 <main>
-<section class="hero">
-  <div class="label">SMART GOLD INTELLIGENCE</div>
-  <h1>Phân tích vàng <em>thông minh</em></h1>
-  <p>Theo dõi XAUUSD, kiểm tra điều kiện vào lệnh và tính khối lượng theo rủi ro. Giá và tín hiệu chỉ hiển thị khi có nguồn dữ liệu hợp lệ.</p>
+<div class="label">SMART GOLD INTELLIGENCE</div>
+<h1>Phân tích vàng <span>thông minh</span></h1>
+<p class="intro">Nền tảng theo dõi và phân tích thị trường vàng XAUUSD.</p>
+
+<div class="grid">
+<section class="card">
+  <div class="heading"><span>GIÁ VÀNG XAUUSD</span><span class="muted">USD / OZ</span></div>
+  <div class="muted">Giá vàng tham khảo</div>
+  <div class="price" id="xau-price">Đang tải...</div>
+  <div class="status" id="xau-status" aria-live="polite">Đang kết nối nguồn dữ liệu...</div>
+
+  <div class="tabs">
+    <button class="tab">Tuần</button>
+    <button class="tab active">Ngày</button>
+    <button class="tab">H4</button>
+    <button class="tab">H1</button>
+  </div>
+
+  <div class="chart">
+    <svg viewBox="0 0 700 190" preserveAspectRatio="none">
+      <path d="M0 145 L60 130 L110 150 L160 105 L210 120 L260 85 L310 110 L360 65 L410 90 L460 55 L510 75 L560 35 L620 55 L700 20" fill="none" stroke="#b58a32" stroke-width="3"/>
+    </svg>
+    <div class="chart-note">Biểu đồ minh họa - Không phải dữ liệu nến thực</div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><small>MA20 / 50 / 200</small><b>Chờ dữ liệu</b></div>
+    <div class="metric"><small>RSI 14</small><b>—</b></div>
+    <div class="metric"><small>ATR 14</small><b>—</b></div>
+  </div>
 </section>
 
-<section class="grid">
-  <div class="card">
-    <div class="ct"><span>GIÁ VÀNG XAUUSD</span><span class="small">USD / OZ</span></div>
-    <div class="small">Giá thị trường</div>
-    <div class="price">— — —</div>
-    <div class="small">Chưa kết nối nguồn dữ liệu trực tiếp</div>
-    <div class="tabs" id="tabs"><button class="tab">Tuần</button><button class="tab on">Ngày</button><button class="tab">H4</button><button class="tab">H1</button></div>
-    <div class="chart">
-      <svg viewBox="0 0 700 210" preserveAspectRatio="none"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c99a2e" stop-opacity=".35"/><stop offset="1" stop-color="#c99a2e" stop-opacity="0"/></linearGradient></defs>
-      <path d="M0 160 L60 145 L110 170 L160 115 L210 130 L260 95 L310 120 L360 75 L410 100 L460 65 L510 85 L560 45 L620 65 L700 25 L700 210 L0 210Z" fill="url(#a)"/>
-      <path class="line" d="M0 160 L60 145 L110 170 L160 115 L210 130 L260 95 L310 120 L360 75 L410 100 L460 65 L510 85 L560 45 L620 65 L700 25" fill="none" stroke="#c99a2e" stroke-width="3" stroke-linejoin="round"/></svg>
-      <div class="note">Biểu đồ minh họa - Không phải giá thực</div>
-    </div>
-    <div class="metrics">
-      <div class="metric"><small>MA 20 / 50 / 200</small><strong>Chờ dữ liệu</strong></div>
-      <div class="metric"><small>RSI 14</small><strong>—</strong></div>
-      <div class="metric"><small>ATR 14</small><strong>—</strong></div>
-    </div>
+<section class="card">
+  <div class="heading"><span>PHÂN TÍCH THỊ TRƯỜNG</span><span class="muted">XAUUSD</span></div>
+  <div class="signal">
+    <div class="muted">TÍN HIỆU HIỆN TẠI</div>
+    <b>WAIT</b>
+    <p>Chưa đủ dữ liệu để xác nhận giao dịch.</p>
   </div>
+  <div class="row"><span>Xu hướng tuần</span><b>Chờ dữ liệu</b></div>
+  <div class="row"><span>Cấu trúc ngày</span><b>Chờ dữ liệu</b></div>
+  <div class="row"><span>Hỗ trợ</span><b>—</b></div>
+  <div class="row"><span>Kháng cự</span><b>—</b></div>
+  <div class="row"><span>Điểm vào lệnh</span><b>—</b></div>
+  <div class="row"><span>Stop Loss</span><b>—</b></div>
+  <div class="row"><span>Take Profit</span><b>—</b></div>
+</section>
+</div>
 
-  <div class="card">
-    <div class="ct"><span>PHÂN TÍCH AI</span><span class="small">15 PHÚT</span></div>
-    <div class="signal"><div class="small">TÍN HIỆU HIỆN TẠI</div><b>WAIT</b><p>Chưa có tín hiệu giao dịch được xác nhận</p></div>
-    <div class="row"><span>Xu hướng tuần</span><strong>Chờ dữ liệu</strong></div>
-    <div class="row"><span>Cấu trúc ngày</span><strong>Chờ dữ liệu</strong></div>
-    <div class="row"><span>Hỗ trợ</span><strong>—</strong></div>
-    <div class="row"><span>Kháng cự</span><strong>—</strong></div>
-    <div class="row"><span>Điểm vào lệnh</span><strong>—</strong></div>
-    <div class="row"><span>Cắt lỗ / Chốt lời</span><strong>—</strong></div>
+<section class="section">
+<h2>Điều kiện xác nhận giao dịch</h2>
+<p>Đánh dấu các điều kiện đã được kiểm tra trước khi cân nhắc giao dịch.</p>
+<div class="two">
+<div class="card">
+  <div class="heading"><span>TRADE CHECKLIST</span><span id="score" class="muted">0 / 6</span></div>
+  <div class="bar"><div id="progress"></div></div>
+  <label class="check"><input type="checkbox">Xu hướng tuần và ngày cùng chiều</label>
+  <label class="check"><input type="checkbox">Giá phản ứng tại hỗ trợ hoặc kháng cự</label>
+  <label class="check"><input type="checkbox">H4 xác nhận cấu trúc</label>
+  <label class="check"><input type="checkbox">DXY và lợi suất trái phiếu đã kiểm tra</label>
+  <label class="check"><input type="checkbox">Không có tin mạnh sắp công bố</label>
+  <label class="check"><input type="checkbox">Tỷ lệ lợi nhuận/rủi ro tối thiểu 1:2</label>
+  <div class="signal">
+    <div class="muted">ĐÁNH GIÁ CHECKLIST</div>
+    <b id="checkSignal">WAIT</b>
+    <p id="checkMessage">Chưa đủ điều kiện.</p>
   </div>
+</div>
+
+<div class="card">
+  <div class="heading"><span>TÍNH KHỐI LƯỢNG GIAO DỊCH</span></div>
+  <div class="fields">
+    <label class="field">Số dư tài khoản (USD)
+      <input type="number" id="balance" value="1000" min="0">
+    </label>
+    <label class="field">Rủi ro (%)
+      <input type="number" id="risk" value="1" min="0.01" max="100" step="0.1">
+    </label>
+    <label class="field">Giá vào lệnh
+      <input type="number" id="entry" value="2650" min="0" step="0.01">
+    </label>
+    <label class="field">Giá Stop Loss
+      <input type="number" id="stop" value="2645" min="0" step="0.01">
+    </label>
+    <label class="field">Giá Take Profit
+      <input type="number" id="target" value="2660" min="0" step="0.01">
+    </label>
+    <label class="field">Hợp đồng (oz / lot)
+      <input type="number" id="contract" value="100" min="0.01" step="0.01">
+    </label>
+  </div>
+  <div class="results">
+    <div class="result"><small>Rủi ro tối đa</small><b id="riskMoney">—</b></div>
+    <div class="result"><small>Khối lượng (lot)</small><b id="lot">—</b></div>
+    <div class="result"><small>Lợi nhuận dự kiến</small><b id="profit">—</b></div>
+    <div class="result"><small>Tỷ lệ R:R</small><b id="rr">—</b></div>
+  </div>
+  <p class="muted">Máy tính tham khảo. Hãy kiểm tra kích thước hợp đồng và giá trị pip theo nhà môi giới của bạn.</p>
+</div>
+</div>
 </section>
 
 <section class="section">
-  <h2>Công cụ giao dịch</h2>
-  <p>Tự đánh giá điều kiện và tính rủi ro ngay trên trình duyệt, không cần dữ liệu ngoài.</p>
-  <div class="two">
-    <div class="card">
-      <div class="ct"><span>CHECKLIST VÀO LỆNH</span><span class="small" id="sc">0 / 6</span></div>
-      <div class="bar"><div id="bf"></div></div>
-      <label class="chk"><input type="checkbox">Xu hướng tuần và ngày cùng chiều</label>
-      <label class="chk"><input type="checkbox">Giá phản ứng tại hỗ trợ / kháng cự rõ ràng</label>
-      <label class="chk"><input type="checkbox">H4 và H1 xác nhận cấu trúc</label>
-      <label class="chk"><input type="checkbox">DXY và lợi suất trái phiếu không ngược chiều</label>
-      <label class="chk"><input type="checkbox">Không có tin mạnh trong 30 phút tới</label>
-      <label class="chk"><input type="checkbox">Tỷ lệ lời/lỗ tối thiểu 1:2</label>
-      <div class="signal" style="margin:12px 0 0"><div class="small">ĐÁNH GIÁ CÁ NHÂN</div><b id="st">WAIT</b><p id="sm">Chưa đủ điều kiện, hãy chờ thêm.</p></div>
-    </div>
-    <div class="card">
-      <div class="ct"><span>TÍNH KHỐI LƯỢNG (LOT)</span><span class="small">1 lot = 100 oz</span></div>
-      <div class="f">
-        <label class="fl">Vốn (USD)<input type="number" id="bal" value="1000" min="0" inputmode="decimal"></label>
-        <label class="fl">Rủi ro (%)<input type="number" id="rk" value="1" min="0" step="0.1" inputmode="decimal"></label>
-        <label class="fl">Giá vào<input type="number" id="en" value="2650" step="0.01" inputmode="decimal"></label>
-        <label class="fl">Cắt lỗ<input type="number" id="sl" value="2645" step="0.01" inputmode="decimal"></label>
-        <label class="fl" style="grid-column:1/-1">Chốt lời<input type="number" id="tp" value="2660" step="0.01" inputmode="decimal"></label>
-      </div>
-      <div class="res">
-        <div><small>Rủi ro tối đa</small><b id="r1">—</b></div>
-        <div><small>Khối lượng</small><b id="r2">—</b></div>
-        <div><small>Lời/Lỗ (R:R)</small><b id="r3">—</b></div>
-        <div><small>Lợi nhuận tại TP</small><b id="r4">—</b></div>
-      </div>
-      <div class="small" style="margin-top:10px">Ví dụ số liệu chỉ để minh họa. Hãy nhập giá thực của bạn.</div>
-    </div>
-  </div>
+<h2>Các công cụ GOLD PRO</h2>
+<div class="features">
+  <div class="feature"><b>01 · XAUUSD</b><p>Theo dõi giá vàng tham khảo từ nguồn dữ liệu.</p></div>
+  <div class="feature"><b>02 · MULTI TIMEFRAME</b><p>Phân tích tuần, ngày, H4 và H1 khi có dữ liệu.</p></div>
+  <div class="feature"><b>03 · RISK MANAGEMENT</b><p>Tính khối lượng và rủi ro trước giao dịch.</p></div>
+  <div class="feature"><b>04 · TECHNICAL</b><p>MA20, MA50, MA200, RSI14 và ATR14.</p></div>
+  <div class="feature"><b>05 · MACRO DATA</b><p>DXY, lợi suất trái phiếu Mỹ và lịch kinh tế.</p></div>
+  <div class="feature"><b>06 · AI ANALYSIS</b><p>BUY / SELL / WAIT chỉ khi có dữ liệu xác nhận.</p></div>
+</div>
 </section>
 
-<section class="section features">
-  <div class="feature"><h3>ĐA KHUNG THỜI GIAN</h3><p>Phân tích xu hướng tuần, ngày, H4 và H1.</p></div>
-  <div class="feature"><h3>DỮ LIỆU VĨ MÔ</h3><p>Theo dõi DXY, lợi suất trái phiếu Mỹ và lịch kinh tế.</p></div>
-  <div class="feature"><h3>QUẢN TRỊ RỦI RO</h3><p>Đánh giá điểm vào, dừng lỗ và mục tiêu lợi nhuận.</p></div>
-</section>
-
-<div class="notice">LƯU Ý: GOLD PRO cung cấp thông tin phân tích tham khảo, không phải lời khuyên đầu tư. Không cam kết lợi nhuận. Giao dịch vàng có rủi ro cao. Giá và tín hiệu chỉ được công bố sau khi xác minh nguồn dữ liệu.</div>
+<div class="notice">
+<strong>Thông báo rủi ro:</strong> GOLD PRO cung cấp thông tin tham khảo và công cụ phân tích, không phải lời khuyên đầu tư. Giao dịch vàng có rủi ro mất vốn. Không có tín hiệu nào đảm bảo lợi nhuận. Giá tham khảo XAUS không nhất thiết là giá khớp lệnh của nhà môi giới.
+</div>
 </main>
-<footer>© 2026 GOLD PRO by cuong · PHÂN TÍCH VÀNG THÔNG MINH<br>Chế độ chỉ xem · Dành cho cộng đồng</footer>
+
+<footer>GOLD PRO · Phân tích vàng thông minh · by cuong</footer>
+
 <script>
-var $=function(i){return document.getElementById(i)};
-$('tabs').addEventListener('click',function(e){if(!e.target.classList.contains('tab'))return;[].forEach.call(document.querySelectorAll('.tab'),function(t){t.classList.remove('on')});e.target.classList.add('on')});
-$('th').onclick=function(){var r=document.documentElement,d=(r.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));r.dataset.theme=d==='dark'?'light':'dark'};
-var cb=document.querySelectorAll('.chk input');
-function chk(){var n=0;[].forEach.call(cb,function(c){if(c.checked)n++});$('sc').textContent=n+' / 6';$('bf').style.width=(n/6*100)+'%';
- var s=$('st'),m=$('sm');
- if(n>=6){s.textContent='READY';m.textContent='Đủ điều kiện theo checklist. Vẫn cần kiểm soát rủi ro.'}
- else if(n>=4){s.textContent='WATCH';m.textContent='Gần đủ điều kiện, theo dõi thêm xác nhận.'}
- else{s.textContent='WAIT';m.textContent='Chưa đủ điều kiện, hãy chờ thêm.'}}
-[].forEach.call(cb,function(c){c.onchange=chk});
-function f(x){return isFinite(x)?x.toLocaleString('en-US',{maximumFractionDigits:2}):'—'}
-function calc(){var b=+$('bal').value,r=+$('rk').value,e=+$('en').value,s=+$('sl').value,t=+$('tp').value;
- var risk=b*r/100,d=Math.abs(e-s),lot=d>0?risk/(d*100):NaN,rr=d>0?Math.abs(t-e)/d:NaN;
- $('r1').textContent=risk>0?'$'+f(risk):'—';
- $('r2').textContent=isFinite(lot)?(Math.floor(lot*100)/100).toFixed(2)+' lot':'—';
- $('r3').textContent=isFinite(rr)?'1 : '+rr.toFixed(2):'—';
- $('r4').textContent=isFinite(lot)?'$'+f(Math.abs(t-e)*100*Math.floor(lot*100)/100):'—'}
-['bal','rk','en','sl','tp'].forEach(function(i){$(i).oninput=calc});calc();
+const $ = id => document.getElementById(id);
+
+/* Theme */
+const savedTheme = localStorage.getItem('goldpro-theme');
+if(savedTheme) document.documentElement.dataset.theme = savedTheme;
+$('themeBtn').addEventListener('click',()=>{
+  const current = document.documentElement.dataset.theme;
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem('goldpro-theme',next);
+});
+
+/* XAUS reference price */
+(function(){
+  const priceEl = $('xau-price');
+  const statusEl = $('xau-status');
+  const api = 'https://xaus.com/api/v1/spot?compact=1';
+
+  function unavailable(message){
+    priceEl.textContent = '— — —';
+    statusEl.textContent = message || 'Dữ liệu không khả dụng · WAIT';
+  }
+
+  async function updateGold(){
+    try{
+      const response = await fetch(api,{
+        method:'GET',
+        cache:'no-store'
+      });
+      if(!response.ok) throw new Error('API error');
+
+      const data = await response.json();
+      const price = Number(data.spot_usd_oz);
+      const state = data.data_state && data.data_state.status;
+      const age = Number(data.data_state && data.data_state.age_seconds);
+
+      if(
+        !Number.isFinite(price) ||
+        price <= 0 ||
+        state !== 'fresh' ||
+        data.stale === true ||
+        !Number.isFinite(age) ||
+        age > 300
+      ){
+        unavailable('Dữ liệu cũ hoặc không hợp lệ · WAIT');
+        return;
+      }
+
+      priceEl.textContent = price.toLocaleString('en-US',{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      });
+
+      const timestamp =
+        data.price_as_of ||
+        data.updated_at ||
+        (data.data_state && data.data_state.as_of);
+
+      const time = timestamp
+        ? new Date(timestamp).toLocaleString('vi-VN',{
+            timeZone:'Asia/Ho_Chi_Minh'
+          })
+        : 'Không rõ';
+
+      statusEl.textContent =
+        'Nguồn XAUS · Dữ liệu mới · Cập nhật: ' + time +
+        ' · Giá tham khảo';
+    }catch(error){
+      unavailable('Không kết nối được nguồn XAUS · WAIT');
+    }
+  }
+
+  updateGold();
+  setInterval(updateGold,60000);
+})();
+
+/* Checklist */
+function updateChecklist(){
+  const boxes = document.querySelectorAll('.check input');
+  let count = 0;
+  boxes.forEach(box=>{if(box.checked) count++;});
+
+  $('score').textContent = count + ' / 6';
+  $('progress').style.width = (count/6*100) + '%';
+
+  if(count === 6){
+    $('checkSignal').textContent = 'READY';
+    $('checkMessage').textContent = 'Checklist đã hoàn thành. Vẫn cần kiểm tra biểu đồ và dữ liệu thực tế.';
+  }else{
+    $('checkSignal').textContent = 'WAIT';
+    $('checkMessage').textContent = 'Chưa đủ điều kiện. Còn ' + (6-count) + ' mục cần kiểm tra.';
+  }
+}
+document.querySelectorAll('.check input').forEach(box=>{
+  box.addEventListener('change',updateChecklist);
+});
+
+/* Position calculator */
+function calculate(){
+  const balance = Number($('balance').value);
+  const risk = Number($('risk').value);
+  const entry = Number($('entry').value);
+  const stop = Number($('stop').value);
+  const target = Number($('target').value);
+  const contract = Number($('contract').value);
+
+  const outputIds = ['riskMoney','lot','profit','rr'];
+  const valid =
+    Number.isFinite(balance) && balance > 0 &&
+    Number.isFinite(risk) && risk > 0 && risk <= 100 &&
+    Number.isFinite(entry) && entry > 0 &&
+    Number.isFinite(stop) && stop > 0 &&
+    Number.isFinite(target) && target > 0 &&
+    Number.isFinite(contract) && contract > 0 &&
+    entry !== stop;
+
+  if(!valid){
+    outputIds.forEach(id=>$(id).textContent='Kiểm tra dữ liệu');
+    return;
+  }
+
+  const distance = Math.abs(entry-stop);
+  const riskMoney = balance * risk / 100;
+  const rawLot = riskMoney / (distance * contract);
+  const lot = Math.floor(rawLot*100)/100;
+  const rewardDistance = Math.abs(target-entry);
+  const profit = lot * contract * rewardDistance;
+  const rr = rewardDistance / distance;
+
+  $('riskMoney').textContent = riskMoney.toFixed(2) + ' USD';
+  $('lot').textContent = lot.toFixed(2);
+  $('profit').textContent = profit.toFixed(2) + ' USD';
+  $('rr').textContent = '1 : ' + rr.toFixed(2);
+}
+
+['balance','risk','entry','stop','target','contract'].forEach(id=>{
+  $(id).addEventListener('input',calculate);
+});
+calculate();
+updateChecklist();
+
+/* Timeframe buttons: visual selection only */
+document.querySelectorAll('.tab').forEach(button=>{
+  button.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(item=>item.classList.remove('active'));
+    button.classList.add('active');
+  });
+});
 </script>
 </body>
 </html>
