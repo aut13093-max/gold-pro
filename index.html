@@ -34,3 +34,155 @@ h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--gold2
 .small{color:var(--muted);font-size:11px;font-weight:400;letter-spacing:0}
 .price{font-size:clamp(32px,6vw,44px);font-weight:800;margin:4px 0;letter-spacing:2px;color:var(--gold)}
 .tabs{display:flex;gap:6px;margin:14px 0 10px;overflow-x:auto}
+.tab{border:1px solid var(--line);background:transparent;border-radius:99px;padding:5px 14px;font-size:12px;color:var(--muted)}
+.tab.on{background:var(--gold);color:#16120a;border-color:var(--gold);font-weight:700}
+.chart{height:210px;border-radius:12px;border:1px solid var(--line);position:relative;overflow:hidden;background:repeating-linear-gradient(to bottom,transparent 0 51px,var(--line) 52px),var(--card2)}
+.chart svg{width:100%;height:100%;display:block}
+.line{stroke-dasharray:1400;stroke-dashoffset:1400;animation:d 2.2s ease forwards}
+@keyframes d{to{stroke-dashoffset:0}}
+.note{position:absolute;left:10px;bottom:7px;font-size:10px;color:var(--muted)}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.metric{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.metric small{color:var(--muted);font-size:11px}.metric strong{display:block;margin-top:6px;font-size:13px}
+.signal{border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:16px;margin-bottom:12px;background:var(--card2)}
+.signal b{font-size:30px;color:var(--gold);letter-spacing:2px}
+.signal p{margin:2px 0 0;color:var(--muted);font-size:12px}
+.row{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}
+.row:last-child{border:0}.row span{color:var(--muted)}
+.section{margin-top:26px}
+.section h2{font-size:18px;margin:0 0 4px}
+.section>p{color:var(--muted);font-size:13px;margin:0 0 14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chk{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;font-size:13px;cursor:pointer;background:var(--card2)}
+.chk input{accent-color:var(--gold);width:17px;height:17px}
+.chk:has(input:checked){border-color:var(--gold);background:var(--glow)}
+.bar{height:8px;border-radius:9px;background:var(--line);overflow:hidden;margin:6px 0 10px}
+.bar div{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--green));transition:width .3s}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label.fl{font-size:11px;color:var(--muted);display:block}
+input[type=number]{width:100%;margin-top:4px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--text);font:inherit;font-size:16px}
+input[type=number]:focus{outline:2px solid var(--gold);outline-offset:0}
+.res{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.res div{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.res small{color:var(--muted);font-size:11px;display:block}.res b{font-size:18px}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.feature{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;transition:transform .2s,border-color .2s}
+.feature:hover{transform:translateY(-3px);border-color:var(--gold)}
+.feature h3{margin:0 0 6px;font-size:13px;color:var(--gold);letter-spacing:1px}
+.feature p{margin:0;font-size:13px;color:var(--muted)}
+.notice{margin-top:22px;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:14px;font-size:12px;color:var(--muted);background:var(--card)}
+footer{border-top:1px solid var(--line);padding:24px;text-align:center;color:var(--muted);font-size:11px}
+@media(max-width:780px){.grid,.two,.features{grid-template-columns:1fr}main{padding:24px 14px}.pill.hide{display:none}.metrics{gap:6px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.line{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><i></i>GOLD <span>PRO</span><small class="by">by cuong</small></div>
+  <div class="right"><span class="pill hide"><span class="dot"></span>CHỜ NGUỒN DỮ LIỆU</span><button class="ic" id="th" aria-label="Đổi giao diện">◐</button></div>
+</header>
+<main>
+<section class="hero">
+  <div class="label">SMART GOLD INTELLIGENCE</div>
+  <h1>Phân tích vàng <em>thông minh</em></h1>
+  <p>Theo dõi XAUUSD, kiểm tra điều kiện vào lệnh và tính khối lượng theo rủi ro. Giá và tín hiệu chỉ hiển thị khi có nguồn dữ liệu hợp lệ.</p>
+</section>
+
+<section class="grid">
+  <div class="card">
+    <div class="ct"><span>GIÁ VÀNG XAUUSD</span><span class="small">USD / OZ</span></div>
+    <div class="small">Giá thị trường</div>
+    <div class="price">— — —</div>
+    <div class="small">Chưa kết nối nguồn dữ liệu trực tiếp</div>
+    <div class="tabs" id="tabs"><button class="tab">Tuần</button><button class="tab on">Ngày</button><button class="tab">H4</button><button class="tab">H1</button></div>
+    <div class="chart">
+      <svg viewBox="0 0 700 210" preserveAspectRatio="none"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c99a2e" stop-opacity=".35"/><stop offset="1" stop-color="#c99a2e" stop-opacity="0"/></linearGradient></defs>
+      <path d="M0 160 L60 145 L110 170 L160 115 L210 130 L260 95 L310 120 L360 75 L410 100 L460 65 L510 85 L560 45 L620 65 L700 25 L700 210 L0 210Z" fill="url(#a)"/>
+      <path class="line" d="M0 160 L60 145 L110 170 L160 115 L210 130 L260 95 L310 120 L360 75 L410 100 L460 65 L510 85 L560 45 L620 65 L700 25" fill="none" stroke="#c99a2e" stroke-width="3" stroke-linejoin="round"/></svg>
+      <div class="note">Biểu đồ minh họa - Không phải giá thực</div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><small>MA 20 / 50 / 200</small><strong>Chờ dữ liệu</strong></div>
+      <div class="metric"><small>RSI 14</small><strong>—</strong></div>
+      <div class="metric"><small>ATR 14</small><strong>—</strong></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span>PHÂN TÍCH AI</span><span class="small">15 PHÚT</span></div>
+    <div class="signal"><div class="small">TÍN HIỆU HIỆN TẠI</div><b>WAIT</b><p>Chưa có tín hiệu giao dịch được xác nhận</p></div>
+    <div class="row"><span>Xu hướng tuần</span><strong>Chờ dữ liệu</strong></div>
+    <div class="row"><span>Cấu trúc ngày</span><strong>Chờ dữ liệu</strong></div>
+    <div class="row"><span>Hỗ trợ</span><strong>—</strong></div>
+    <div class="row"><span>Kháng cự</span><strong>—</strong></div>
+    <div class="row"><span>Điểm vào lệnh</span><strong>—</strong></div>
+    <div class="row"><span>Cắt lỗ / Chốt lời</span><strong>—</strong></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Công cụ giao dịch</h2>
+  <p>Tự đánh giá điều kiện và tính rủi ro ngay trên trình duyệt, không cần dữ liệu ngoài.</p>
+  <div class="two">
+    <div class="card">
+      <div class="ct"><span>CHECKLIST VÀO LỆNH</span><span class="small" id="sc">0 / 6</span></div>
+      <div class="bar"><div id="bf"></div></div>
+      <label class="chk"><input type="checkbox">Xu hướng tuần và ngày cùng chiều</label>
+      <label class="chk"><input type="checkbox">Giá phản ứng tại hỗ trợ / kháng cự rõ ràng</label>
+      <label class="chk"><input type="checkbox">H4 và H1 xác nhận cấu trúc</label>
+      <label class="chk"><input type="checkbox">DXY và lợi suất trái phiếu không ngược chiều</label>
+      <label class="chk"><input type="checkbox">Không có tin mạnh trong 30 phút tới</label>
+      <label class="chk"><input type="checkbox">Tỷ lệ lời/lỗ tối thiểu 1:2</label>
+      <div class="signal" style="margin:12px 0 0"><div class="small">ĐÁNH GIÁ CÁ NHÂN</div><b id="st">WAIT</b><p id="sm">Chưa đủ điều kiện, hãy chờ thêm.</p></div>
+    </div>
+    <div class="card">
+      <div class="ct"><span>TÍNH KHỐI LƯỢNG (LOT)</span><span class="small">1 lot = 100 oz</span></div>
+      <div class="f">
+        <label class="fl">Vốn (USD)<input type="number" id="bal" value="1000" min="0" inputmode="decimal"></label>
+        <label class="fl">Rủi ro (%)<input type="number" id="rk" value="1" min="0" step="0.1" inputmode="decimal"></label>
+        <label class="fl">Giá vào<input type="number" id="en" value="2650" step="0.01" inputmode="decimal"></label>
+        <label class="fl">Cắt lỗ<input type="number" id="sl" value="2645" step="0.01" inputmode="decimal"></label>
+        <label class="fl" style="grid-column:1/-1">Chốt lời<input type="number" id="tp" value="2660" step="0.01" inputmode="decimal"></label>
+      </div>
+      <div class="res">
+        <div><small>Rủi ro tối đa</small><b id="r1">—</b></div>
+        <div><small>Khối lượng</small><b id="r2">—</b></div>
+        <div><small>Lời/Lỗ (R:R)</small><b id="r3">—</b></div>
+        <div><small>Lợi nhuận tại TP</small><b id="r4">—</b></div>
+      </div>
+      <div class="small" style="margin-top:10px">Ví dụ số liệu chỉ để minh họa. Hãy nhập giá thực của bạn.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section features">
+  <div class="feature"><h3>ĐA KHUNG THỜI GIAN</h3><p>Phân tích xu hướng tuần, ngày, H4 và H1.</p></div>
+  <div class="feature"><h3>DỮ LIỆU VĨ MÔ</h3><p>Theo dõi DXY, lợi suất trái phiếu Mỹ và lịch kinh tế.</p></div>
+  <div class="feature"><h3>QUẢN TRỊ RỦI RO</h3><p>Đánh giá điểm vào, dừng lỗ và mục tiêu lợi nhuận.</p></div>
+</section>
+
+<div class="notice">LƯU Ý: GOLD PRO cung cấp thông tin phân tích tham khảo, không phải lời khuyên đầu tư. Không cam kết lợi nhuận. Giao dịch vàng có rủi ro cao. Giá và tín hiệu chỉ được công bố sau khi xác minh nguồn dữ liệu.</div>
+</main>
+<footer>© 2026 GOLD PRO by cuong · PHÂN TÍCH VÀNG THÔNG MINH<br>Chế độ chỉ xem · Dành cho cộng đồng</footer>
+<script>
+var $=function(i){return document.getElementById(i)};
+$('tabs').addEventListener('click',function(e){if(!e.target.classList.contains('tab'))return;[].forEach.call(document.querySelectorAll('.tab'),function(t){t.classList.remove('on')});e.target.classList.add('on')});
+$('th').onclick=function(){var r=document.documentElement,d=(r.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));r.dataset.theme=d==='dark'?'light':'dark'};
+var cb=document.querySelectorAll('.chk input');
+function chk(){var n=0;[].forEach.call(cb,function(c){if(c.checked)n++});$('sc').textContent=n+' / 6';$('bf').style.width=(n/6*100)+'%';
+ var s=$('st'),m=$('sm');
+ if(n>=6){s.textContent='READY';m.textContent='Đủ điều kiện theo checklist. Vẫn cần kiểm soát rủi ro.'}
+ else if(n>=4){s.textContent='WATCH';m.textContent='Gần đủ điều kiện, theo dõi thêm xác nhận.'}
+ else{s.textContent='WAIT';m.textContent='Chưa đủ điều kiện, hãy chờ thêm.'}}
+[].forEach.call(cb,function(c){c.onchange=chk});
+function f(x){return isFinite(x)?x.toLocaleString('en-US',{maximumFractionDigits:2}):'—'}
+function calc(){var b=+$('bal').value,r=+$('rk').value,e=+$('en').value,s=+$('sl').value,t=+$('tp').value;
+ var risk=b*r/100,d=Math.abs(e-s),lot=d>0?risk/(d*100):NaN,rr=d>0?Math.abs(t-e)/d:NaN;
+ $('r1').textContent=risk>0?'$'+f(risk):'—';
+ $('r2').textContent=isFinite(lot)?(Math.floor(lot*100)/100).toFixed(2)+' lot':'—';
+ $('r3').textContent=isFinite(rr)?'1 : '+rr.toFixed(2):'—';
+ $('r4').textContent=isFinite(lot)?'$'+f(Math.abs(t-e)*100*Math.floor(lot*100)/100):'—'}
+['bal','rk','en','sl','tp'].forEach(function(i){$(i).oninput=calc});calc();
+</script>
+</body>
+</html>
