@@ -148,7 +148,7 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
    <button onclick="loadHistory()">Tải H4 · 6 tháng</button>
    <button onclick="loadH1()">Tải H1 · 6 tháng</button>
   </div>
-  <div class="small muted">Nguồn dữ liệu: AlgoSpecial. Hệ thống không tự tạo nến khi thiếu dữ liệu.</div>
+  <div class="small muted">Nguồn dữ liệu: AlgoSpecial; tự chuyển sang Binance PAXG/USDT khi AlgoSpecial cũ. Hệ thống không tự tạo nến khi thiếu dữ liệu.</div>
  </section>
 
  <section class="card">
@@ -269,6 +269,9 @@ const HISTORY_URL="https://www.algospecial.com/api/ohlc.php";
 const HISTORY_DAYS=180,CHUNK_DAYS=15;
 let allH4=[],allH1=[],allD1=[],allW1=[];
 let currentTimeframe="H4",loadingH4=false,loadingH1=false;
+const BINANCE_KLINES="https://api.binance.com/api/v3/klines";
+const BINANCE_PRICE="https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT";
+let sourceH4="AlgoSpecial",sourceH1="AlgoSpecial";
 
 function $(id){return document.getElementById(id)}
 function dateString(date){
@@ -325,7 +328,16 @@ async function updateGold(){
   $("goldPrice").textContent=formatPrice(price);
   $("goldUpdate").textContent="Nguồn XAUS · Cập nhật: "+new Date().toLocaleString("vi-VN");
  }catch(error){
-  $("goldUpdate").textContent="Không tải được giá XAUS: "+error.message;
+  try{
+   const r=await fetch(BINANCE_PRICE,{cache:"no-store"});
+   if(!r.ok)throw new Error("Binance HTTP "+r.status);
+   const p=Number((await r.json()).price);
+   if(!Number.isFinite(p))throw new Error("Binance không có giá");
+   $("goldPrice").textContent=formatPrice(p);
+   $("goldUpdate").textContent="Nguồn Binance PAXG/USDT (tham khảo, có chênh lệch nhỏ so với XAUUSD) · XAUS lỗi: "+error.message+" · "+new Date().toLocaleString("vi-VN");
+  }catch(e2){
+   $("goldUpdate").textContent="Không tải được giá: "+error.message+" | "+e2.message;
+  }
  }
 }
 
@@ -391,19 +403,46 @@ async function fetchPeriodRange(days,tf,onProgress){
  return {data:uniqueCandles(all),errors};
 }
 
+async function fetchBinance(tf){
+ const interval=tf==="H4"?"4h":"1h";
+ const r=await fetch(BINANCE_KLINES+"?symbol=PAXGUSDT&interval="+interval+"&limit=1000",{cache:"no-store"});
+ if(!r.ok)throw new Error("Binance HTTP "+r.status);
+ const rows=await r.json();
+ if(!Array.isArray(rows))throw new Error("Binance trả dữ liệu không hợp lệ");
+ return uniqueCandles(rows.map(k=>({time:new Date(k[0]),open:+k[1],high:+k[2],low:+k[3],close:+k[4],volume:+k[5]}))
+  .filter(c=>[c.open,c.high,c.low,c.close].every(Number.isFinite)));
+}
+
+async function getSeries(tf,progress){
+ const result=await fetchPeriodRange(HISTORY_DAYS,tf,progress);
+ let data=result.data,source="AlgoSpecial",note="";
+ if(!isRecentData(data,tf)){
+  try{
+   const b=await fetchBinance(tf);
+   if(b.length>=2&&isRecentData(b,tf)){
+    data=b;source="Binance PAXG/USDT";
+    note=" · AlgoSpecial đã cũ, tự chuyển sang Binance (giá tham khảo, chênh lệch nhỏ so với XAUUSD)";
+   }
+  }catch(e){console.error(e)}
+ }
+ return {data,source,note,errors:result.errors};
+}
+
+function historyText(tf,r){
+ return tf+" ["+r.source+"]: "+r.data.length+" nến · "+formatDate(r.data[0].time)+" đến "+formatDate(r.data[r.data.length-1].time)+
+  (r.errors.length&&r.source==="AlgoSpecial"?" · Có "+r.errors.length+" khoảng bị lỗi":" · Tải hoàn tất")+r.note;
+}
+
 async function loadHistory(){
  if(loadingH4)return;
  loadingH4=true;
  setHistoryMessage("Đang tải dữ liệu H4 trong 6 tháng...");
  try{
-  const result=await fetchPeriodRange(HISTORY_DAYS,"H4",m=>setHistoryMessage("Đang tải "+m));
-  if(result.data.length<2)throw new Error("Không tìm thấy đủ dữ liệu H4. Kiểm tra API hoặc khoảng thời gian.");
-  allH4=result.data;
+  const r=await getSeries("H4",m=>setHistoryMessage("Đang tải "+m));
+  if(r.data.length<2)throw new Error("Không tìm thấy đủ dữ liệu H4. Kiểm tra API hoặc khoảng thời gian.");
+  allH4=r.data;sourceH4=r.source;
   buildHigherTimeframes();
-  setHistoryMessage(
-   "H4: "+allH4.length+" nến · "+formatDate(allH4[0].time)+" đến "+formatDate(allH4[allH4.length-1].time)+
-   (result.errors.length?" · Có "+result.errors.length+" khoảng bị lỗi":" · Tải hoàn tất"),
-   result.errors.length?"normal":"success");
+  setHistoryMessage(historyText("H4",r),r.errors.length&&r.source==="AlgoSpecial"?"normal":"success");
   renderTimeframe();
  }catch(error){
   setHistoryMessage("Không tải được H4: "+error.message,"error");
@@ -416,13 +455,10 @@ async function loadH1(){
  loadingH1=true;
  setHistoryMessage("Đang tải dữ liệu H1 trong 6 tháng...");
  try{
-  const result=await fetchPeriodRange(HISTORY_DAYS,"H1",m=>setHistoryMessage("Đang tải "+m));
-  if(result.data.length<2)throw new Error("Không tìm thấy đủ dữ liệu H1");
-  allH1=result.data;
-  setHistoryMessage(
-   "H1: "+allH1.length+" nến · "+formatDate(allH1[0].time)+" đến "+formatDate(allH1[allH1.length-1].time)+
-   (result.errors.length?" · Có "+result.errors.length+" khoảng bị lỗi":" · Tải hoàn tất"),
-   result.errors.length?"normal":"success");
+  const r=await getSeries("H1",m=>setHistoryMessage("Đang tải "+m));
+  if(r.data.length<2)throw new Error("Không tìm thấy đủ dữ liệu H1");
+  allH1=r.data;sourceH1=r.source;
+  setHistoryMessage(historyText("H1",r),r.errors.length&&r.source==="AlgoSpecial"?"normal":"success");
   if(currentTimeframe==="H1")renderTimeframe();
  }catch(error){
   setHistoryMessage("Không tải được H1: "+error.message,"error");
@@ -606,7 +642,7 @@ function renderTimeframe(){
  const last=candles.length-1;
  const ma20=sma(candles,20),ma50=sma(candles,50),ma200=sma(candles,200);
  const rsiValues=rsi(candles,14),atrValues=atr(candles,14);
- $("chartInfo").textContent=currentTimeframe+" · "+candles.length+" nến · "+formatDate(candles[0].time)+" đến "+formatDate(candles[last].time);
+ $("chartInfo").textContent=currentTimeframe+" ["+(currentTimeframe==="H1"?sourceH1:sourceH4)+"] · "+candles.length+" nến · "+formatDate(candles[0].time)+" đến "+formatDate(candles[last].time);
  $("candleCount").textContent=candles.length;
  $("lastCandleTime").textContent=formatDate(candles[last].time);
  $("ma20Value").textContent=ma20[last]===null?"Chưa đủ dữ liệu":formatPrice(ma20[last]);
