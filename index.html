@@ -3,22 +3,25 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0a1120">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f3ed">
 <title>GOLD PRO - Phân tích vàng thông minh</title>
 
 <style>
 :root{
- --bg:#08111f;
- --panel:#101d30;
- --panel2:#14243a;
- --border:#263951;
- --text:#e8eef8;
- --muted:#91a2b9;
- --gold:#e9bd59;
- --green:#24c78a;
- --red:#f06464;
- --blue:#63a8ff;
+ --bg:#f4f2ec;
+ --panel:#ffffff;
+ --panel2:#faf9f5;
+ --border:#e8e3d8;
+ --text:#252b32;
+ --muted:#858b91;
+ --gold:#bd8b25;
+ --gold-light:#f7edda;
+ --green:#16865d;
+ --red:#d34c4c;
+ --blue:#477fb7;
+ --purple:#9870b7;
+ --shadow:0 4px 18px rgba(45,39,25,.055);
 }
 *{box-sizing:border-box}
 body{
@@ -28,121 +31,226 @@ body{
  font-family:Arial,Helvetica,sans-serif;
 }
 header{
- padding:18px 16px;
+ background:#fff;
  border-bottom:1px solid var(--border);
+ padding:15px 22px;
  display:flex;
- align-items:center;
  justify-content:space-between;
+ align-items:center;
  gap:12px;
  flex-wrap:wrap;
+ position:sticky;
+ top:0;
+ z-index:10;
 }
-.logo{font-size:22px;font-weight:800;color:var(--gold)}
-.subtitle{font-size:12px;color:var(--muted);margin-top:5px}
+.logo{
+ font-size:25px;
+ font-weight:900;
+ letter-spacing:1.5px;
+ color:#252525;
+}
+.logo span{color:var(--gold)}
+.subtitle{
+ font-size:11px;
+ color:var(--muted);
+ margin-top:5px;
+}
 button,input,select{font:inherit}
 button{
  border:1px solid var(--border);
- background:var(--panel2);
+ background:#fff;
  color:var(--text);
  padding:10px 14px;
  border-radius:8px;
  cursor:pointer;
+ font-size:12px;
+ font-weight:600;
+ transition:.15s;
 }
-button:hover{border-color:var(--gold)}
-button.active{background:var(--gold);color:#111;border-color:var(--gold);font-weight:bold}
-.container{max-width:1250px;margin:auto;padding:16px}
+button:hover{
+ border-color:var(--gold);
+ color:var(--gold);
+}
+button.active{
+ background:var(--gold);
+ border-color:var(--gold);
+ color:#fff;
+}
+button:disabled{opacity:.55;cursor:wait}
+.refresh{
+ background:#282a2d;
+ color:#fff;
+ border-color:#282a2d;
+}
+.refresh:hover{background:var(--gold);color:#fff}
+.container{
+ max-width:1450px;
+ margin:auto;
+ padding:20px;
+}
 .card{
  background:var(--panel);
  border:1px solid var(--border);
- border-radius:12px;
- padding:16px;
- margin-bottom:14px;
+ border-radius:13px;
+ padding:18px;
+ margin-bottom:15px;
  min-width:0;
+ box-shadow:var(--shadow);
 }
-.grid{display:grid;gap:14px}
+.grid{display:grid;gap:15px}
 .grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .grid4{grid-template-columns:repeat(4,minmax(0,1fr))}
-.label{font-size:12px;color:var(--muted);margin-bottom:8px}
-.value{font-size:23px;font-weight:700}
+.label{
+ font-size:11px;
+ color:var(--muted);
+ margin-bottom:9px;
+ font-weight:700;
+ letter-spacing:.45px;
+}
+.value{font-size:22px;font-weight:800}
 .gold{color:var(--gold)}
 .green{color:var(--green)}
 .red{color:var(--red)}
+.blue{color:var(--blue)}
 .muted{color:var(--muted)}
-.small{font-size:12px}
+.small{font-size:12px;line-height:1.6}
 .section-title{
- font-size:16px;
- font-weight:700;
- margin:0 0 14px;
+ font-size:15px;
+ font-weight:800;
+ margin:0 0 16px;
+ color:#30343a;
+ display:flex;
+ align-items:center;
+ gap:9px;
 }
-.price{font-size:32px;color:var(--gold);font-weight:800}
+.section-title:before{
+ content:"";
+ width:4px;
+ height:17px;
+ border-radius:5px;
+ background:var(--gold);
+}
+.price{
+ font-size:39px;
+ color:var(--gold);
+ font-weight:900;
+ letter-spacing:-1px;
+ margin:8px 0;
+}
+.signal{
+ font-size:30px;
+ font-weight:900;
+ color:var(--gold);
+ margin:7px 0;
+}
+.price-card{
+ background:linear-gradient(135deg,#fff 0%,#fffaf0 100%);
+ border-color:#eadcc0;
+}
+.signal-card{background:#fff}
 .status{
- padding:9px 11px;
- border-radius:7px;
- background:#172a40;
- color:var(--muted);
+ padding:11px 13px;
+ border-radius:8px;
+ background:#f7f5ef;
+ color:#777d83;
  font-size:12px;
- line-height:1.6;
+ line-height:1.7;
  overflow-wrap:anywhere;
+ border:1px solid #eee9df;
 }
-.status.error{color:#ff9b9b;background:#351e29}
-.status.success{color:#7de0b6}
-.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.status.error{
+ color:#b93d3d;
+ background:#fff1ef;
+ border-color:#f1d3cf;
+}
+.status.success{
+ color:#167c55;
+ background:#edfaf3;
+ border-color:#d2eddf;
+}
+.tabs{
+ display:flex;
+ gap:7px;
+ flex-wrap:wrap;
+ margin-bottom:13px;
+}
 .chart-wrap{
  width:100%;
  overflow:hidden;
- background:#0b1728;
+ background:#fffefa;
+ border:1px solid #eee9df;
  border-radius:9px;
  min-height:280px;
 }
 svg{display:block;width:100%;height:auto}
 .metric{
  background:var(--panel2);
- border-radius:8px;
- padding:12px;
+ border:1px solid #f0ede6;
+ border-radius:9px;
+ padding:13px;
+ min-width:0;
 }
-.metric .value{font-size:18px}
+.metric .value{
+ font-size:18px;
+ overflow-wrap:anywhere;
+}
 table{width:100%;border-collapse:collapse;font-size:13px}
 td,th{
  padding:10px 8px;
  border-bottom:1px solid var(--border);
  text-align:left;
 }
-th{color:var(--muted);font-weight:500}
-input{
+th{color:var(--muted);font-weight:600}
+input,select{
  width:100%;
  padding:11px;
- border-radius:7px;
+ border-radius:8px;
  border:1px solid var(--border);
- background:#091627;
+ background:#fff;
  color:var(--text);
- margin:6px 0 12px;
+ margin:6px 0 13px;
+ outline:none;
 }
-label{font-size:12px;color:var(--muted)}
-.signal{
- font-size:26px;
- font-weight:800;
- color:var(--gold);
-}
+input:focus,select:focus{border-color:var(--gold)}
+label{font-size:12px;color:#737980;font-weight:600}
 .check-item{
- padding:9px 0;
- border-bottom:1px solid var(--border);
+ padding:10px 2px;
+ border-bottom:1px solid #f0ede7;
+ font-size:12px;
+ line-height:1.6;
+}
+.scenario{
+ border:1px solid #eee9df;
+ background:#fcfbf8;
+}
+.scenario-title{
+ font-weight:800;
+ margin-bottom:10px;
  font-size:13px;
- line-height:1.5;
 }
 footer{
- padding:20px;
+ padding:22px 15px;
  text-align:center;
  color:var(--muted);
  font-size:11px;
 }
-@media(max-width:750px){
- .grid2,.grid3,.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}
- .container{padding:10px}
- .card{padding:12px}
- .price{font-size:26px}
+hr{border:0;border-top:1px solid var(--border);margin:15px 0}
+@media(max-width:800px){
+ header{padding:13px 14px}
+ .container{padding:11px}
+ .card{padding:14px}
+ .grid4{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .price{font-size:32px}
 }
-@media(max-width:420px){
- .grid2,.grid3,.grid4{grid-template-columns:1fr}
+@media(max-width:520px){
+ .grid2,.grid3{grid-template-columns:1fr}
+ .grid4{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .value{font-size:19px}
+ .metric .value{font-size:16px}
+ .container{padding:9px}
+ .card{padding:12px}
+ .logo{font-size:22px}
 }
 </style>
 </head>
@@ -151,45 +259,44 @@ footer{
 
 <header>
  <div>
-  <div class="logo">GOLD PRO</div>
+  <div class="logo">GOLD <span>PRO</span></div>
   <div class="subtitle">Hệ thống phân tích và quản trị rủi ro XAUUSD</div>
  </div>
- <button id="refreshButton" onclick="refreshAll()">↻ Làm mới dữ liệu</button>
+ <button class="refresh" id="refreshButton" onclick="refreshAll()">↻ Làm mới dữ liệu</button>
 </header>
 
 <main class="container">
 
  <section class="grid grid2">
-  <div class="card">
+  <div class="card price-card">
    <div class="label">GIÁ VÀNG XAUUSD</div>
    <div class="price" id="goldPrice">Đang tải...</div>
    <div class="small muted">USD / OZ · Giá tham khảo</div>
-   <div class="small muted" id="goldUpdate" style="margin-top:9px">Đang kết nối XAUS...</div>
+   <div class="small muted" id="goldUpdate" style="margin-top:10px">Đang kết nối XAUS...</div>
   </div>
 
-  <div class="card">
+  <div class="card signal-card">
    <div class="label">TÍN HIỆU GIAO DỊCH</div>
    <div class="signal" id="mainSignal">WAIT</div>
    <div class="small muted" id="signalReason">
     Đang chờ dữ liệu và xác nhận thị trường.
    </div>
-   <div class="small muted" style="margin-top:10px">
-    Không tự động vào lệnh.
-   </div>
+   <hr>
+   <div class="small muted">Hệ thống không tự động vào lệnh.</div>
   </div>
  </section>
 
  <section class="card">
-  <h3 class="section-title">DỮ LIỆU LỊCH SỬ</h3>
+  <h3 class="section-title">TRẠNG THÁI DỮ LIỆU LỊCH SỬ</h3>
   <div id="historyStatus" class="status">
    Chưa tải dữ liệu lịch sử.
   </div>
-  <div class="tabs" style="margin-top:12px">
+  <div class="tabs" style="margin-top:13px">
    <button onclick="loadHistory()">Tải H4 · 6 tháng</button>
    <button onclick="loadH1()">Tải H1 · 6 tháng</button>
   </div>
   <div class="small muted">
-   Nguồn lịch sử: AlgoSpecial. Dữ liệu không có sẽ không được tự tạo.
+   Nguồn dữ liệu: AlgoSpecial. Hệ thống không tự tạo nến khi thiếu dữ liệu.
   </div>
  </section>
 
@@ -201,18 +308,19 @@ footer{
    <button data-tf="D1" onclick="selectTimeframe('D1')">D1</button>
    <button data-tf="W1" onclick="selectTimeframe('W1')">W1</button>
   </div>
-  <div class="small muted" id="chartInfo" style="margin-bottom:10px">
+  <div class="small muted" id="chartInfo" style="margin-bottom:11px">
    Đang chờ dữ liệu...
   </div>
   <div class="chart-wrap">
-   <svg id="candleChart" viewBox="0 0 900 350" preserveAspectRatio="none">
-    <text x="450" y="170" text-anchor="middle" fill="#91a2b9">
-     Đang chờ dữ liệu K线
+   <svg id="candleChart" viewBox="0 0 1000 390" preserveAspectRatio="none">
+    <text x="500" y="190" text-anchor="middle" fill="#858b91">
+     Đang chờ dữ liệu K-line
     </text>
    </svg>
   </div>
-  <div class="small muted" style="margin-top:10px">
-   Đường MA20, MA50 và MA200 được tính từ dữ liệu lịch sử thực tế.
+  <div class="small muted" style="margin-top:12px">
+   MA20: Vàng · MA50: Xanh dương · MA200: Tím.
+   Các đường trung bình được tính trên toàn bộ dữ liệu trước khi hiển thị.
   </div>
  </section>
 
@@ -229,11 +337,11 @@ footer{
    </div>
    <div class="metric">
     <div class="label">HỖ TRỢ H4</div>
-    <div class="value" id="supportValue">—</div>
+    <div class="value green" id="supportValue">—</div>
    </div>
    <div class="metric">
     <div class="label">KHÁNG CỰ H4</div>
-    <div class="value" id="resistanceValue">—</div>
+    <div class="value red" id="resistanceValue">—</div>
    </div>
   </div>
  </section>
@@ -262,7 +370,7 @@ footer{
     <div class="value" id="atrValue">—</div>
    </div>
    <div class="metric">
-    <div class="label">NẾN ĐÃ TẢI</div>
+    <div class="label">SỐ NẾN ĐÃ TẢI</div>
     <div class="value" id="candleCount">0</div>
    </div>
    <div class="metric">
@@ -278,18 +386,18 @@ footer{
 
  <section class="card">
   <h3 class="section-title">KIỂM TRA ĐIỀU KIỆN GIAO DỊCH</h3>
-  <div class="check-item" id="checkWeekly">周线：等待数据</div>
-  <div class="check-item" id="checkDaily">日线：等待数据</div>
-  <div class="check-item" id="checkH4">H4：等待数据</div>
-  <div class="check-item" id="checkMA">MA：等待数据</div>
-  <div class="check-item" id="checkRSI">RSI：等待数据</div>
-  <div class="check-item" id="checkATR">ATR：等待数据</div>
+  <div class="check-item" id="checkWeekly">W1 · Đang chờ dữ liệu</div>
+  <div class="check-item" id="checkDaily">D1 · Đang chờ dữ liệu</div>
+  <div class="check-item" id="checkH4">H4 · Đang chờ dữ liệu</div>
+  <div class="check-item" id="checkMA">MA · Đang chờ dữ liệu</div>
+  <div class="check-item" id="checkRSI">RSI · Đang chờ dữ liệu</div>
+  <div class="check-item" id="checkATR">ATR · Đang chờ dữ liệu</div>
   <div class="check-item" id="checkMacro">
-   DXY / Lợi suất trái phiếu Mỹ / Lịch kinh tế：Chưa kết nối
+   DXY / Lợi suất trái phiếu Mỹ / Lịch kinh tế · Chưa kết nối
   </div>
-  <div class="status" style="margin-top:12px">
+  <div class="status" style="margin-top:13px">
    Chưa tích hợp dữ liệu DXY, lợi suất trái phiếu Mỹ và lịch kinh tế trực tiếp.
-   Vì vậy hệ thống không xác nhận lệnh BUY hoặc SELL.
+   Hệ thống mặc định WAIT, không xác nhận BUY hoặc SELL khi thiếu dữ liệu xác nhận.
   </div>
  </section>
 
@@ -300,20 +408,23 @@ footer{
     <label>Số dư tài khoản (USD)</label>
     <input id="balance" type="number" value="10000" min="0">
 
-    <label>Rủi ro mỗi lệnh (%)</label>
-    <input id="riskPercent" type="number" value="1" min="0.01" max="1">
+    <label>Rủi ro mỗi lệnh (%) · Tối đa 1%</label>
+    <input id="riskPercent" type="number" value="1" min="0.01" max="1" step="0.01">
 
     <label>Giá vào lệnh</label>
     <input id="entryPrice" type="number" placeholder="Nhập giá vào lệnh">
 
-    <label>Giá dừng lỗ</label>
+    <label>Giá dừng lỗ (Stop Loss)</label>
     <input id="stopPrice" type="number" placeholder="Nhập giá Stop Loss">
 
     <label>Kích thước hợp đồng (oz / lot)</label>
     <input id="contractSize" type="number" value="100" min="0.01">
 
+    <label>Đòn bẩy · Tối đa 10x</label>
+    <input id="leverage" type="number" value="10" min="1" max="10">
+
     <label>Hướng giao dịch</label>
-    <select id="tradeDirection" style="width:100%;padding:11px;background:#091627;color:white;border:1px solid #263951;border-radius:7px;margin:6px 0 12px">
+    <select id="tradeDirection">
      <option value="BUY">BUY</option>
      <option value="SELL">SELL</option>
     </select>
@@ -335,8 +446,12 @@ footer{
      <div class="value green" id="lotSize">—</div>
     </div>
     <div class="metric" style="margin-top:10px">
-     <div class="label">GIÁ TRỊ RỦI RO ƯỚC TÍNH</div>
+     <div class="label">RỦI RO THỰC TẾ ƯỚC TÍNH</div>
      <div class="value" id="actualRisk">—</div>
+    </div>
+    <div class="metric" style="margin-top:10px">
+     <div class="label">KÝ QUỸ ƯỚC TÍNH</div>
+     <div class="value" id="marginRequired">—</div>
     </div>
     <div class="small muted" id="calcMessage" style="margin-top:12px">
      Nhập giá vào lệnh và dừng lỗ để tính khối lượng.
@@ -348,26 +463,26 @@ footer{
  <section class="card">
   <h3 class="section-title">KỊCH BẢN GIAO DỊCH</h3>
   <div class="grid grid2">
-   <div class="metric">
-    <div class="green" style="font-weight:bold;margin-bottom:8px">KỊCH BẢN BUY</div>
+   <div class="metric scenario">
+    <div class="scenario-title green">KỊCH BẢN BUY</div>
     <div class="small muted">
-     Chỉ xem xét khi cấu trúc ngày và H4 xác nhận tăng,
-     giá có tín hiệu xác nhận tại vùng hỗ trợ.
+     Chỉ xem xét khi cấu trúc tuần, ngày và H4 phù hợp.
+     Chờ giá xác nhận tại vùng hỗ trợ.
     </div>
-    <div class="small" style="margin-top:10px">
+    <div class="small" style="margin-top:12px;line-height:2">
      Entry: Chờ xác nhận<br>
      Stop Loss: 1.5–2 ATR<br>
      TP1 / TP2: Theo vùng kháng cự<br>
      Vô hiệu: Cấu trúc tăng bị phá vỡ
     </div>
    </div>
-   <div class="metric">
-    <div class="red" style="font-weight:bold;margin-bottom:8px">KỊCH BẢN SELL</div>
+   <div class="metric scenario">
+    <div class="scenario-title red">KỊCH BẢN SELL</div>
     <div class="small muted">
-     Chỉ xem xét khi cấu trúc ngày và H4 xác nhận giảm,
-     giá có tín hiệu xác nhận tại vùng kháng cự.
+     Chỉ xem xét khi cấu trúc tuần, ngày và H4 phù hợp.
+     Chờ giá xác nhận tại vùng kháng cự.
     </div>
-    <div class="small" style="margin-top:10px">
+    <div class="small" style="margin-top:12px;line-height:2">
      Entry: Chờ xác nhận<br>
      Stop Loss: 1.5–2 ATR<br>
      TP1 / TP2: Theo vùng hỗ trợ<br>
@@ -386,32 +501,28 @@ footer{
 <script>
 "use strict";
 
-// ===============================
-// CẤU HÌNH
-// ===============================
+// =====================================
+// CẤU HÌNH API
+// =====================================
 
-const SPOT_URL =
- "https://xaus.com/api/v1/spot?compact=1";
+const SPOT_URL="https://xaus.com/api/v1/spot?compact=1";
+const HISTORY_URL="https://www.algospecial.com/api/ohlc.php";
 
-const HISTORY_URL =
- "https://www.algospecial.com/api/ohlc.php";
+const HISTORY_DAYS=180;
+const CHUNK_DAYS=15;
 
-const HISTORY_DAYS = 180;
-const CHUNK_DAYS = 15;
+let allH4=[];
+let allH1=[];
+let allD1=[];
+let allW1=[];
 
-let allH4 = [];
-let allH1 = [];
-let allD1 = [];
-let allW1 = [];
+let currentTimeframe="H4";
+let loadingH4=false;
+let loadingH1=false;
 
-let currentTimeframe = "H4";
-let historyLoaded = false;
-let loadingH4 = false;
-let loadingH1 = false;
-
-// ===============================
-// CÁC HÀM TIỆN ÍCH
-// ===============================
+// =====================================
+// TIỆN ÍCH
+// =====================================
 
 function $(id){
  return document.getElementById(id);
@@ -425,7 +536,7 @@ function dateString(date){
 }
 
 function formatPrice(value){
- if(!Number.isFinite(Number(value))) return "—";
+ if(!Number.isFinite(Number(value)))return "—";
  return Number(value).toLocaleString("en-US",{
   minimumFractionDigits:2,
   maximumFractionDigits:2
@@ -434,7 +545,7 @@ function formatPrice(value){
 
 function formatDate(value){
  const d=value instanceof Date?value:new Date(value);
- if(Number.isNaN(d.getTime())) return "—";
+ if(Number.isNaN(d.getTime()))return "—";
  return d.toLocaleString("vi-VN",{
   year:"numeric",
   month:"2-digit",
@@ -444,18 +555,20 @@ function formatDate(value){
  });
 }
 
-function setHistoryMessage(message,isError=false){
- const el=$("historyStatus");
- el.textContent=message;
- el.className="status"+(isError?" error":"");
-}
-
 function sleep(ms){
  return new Promise(resolve=>setTimeout(resolve,ms));
 }
 
+function setHistoryMessage(message,type="normal"){
+ const el=$("historyStatus");
+ el.textContent=message;
+ el.className="status";
+ if(type==="error")el.classList.add("error");
+ if(type==="success")el.classList.add("success");
+}
+
 function parseCandleTime(value){
- if(value instanceof Date) return value;
+ if(value instanceof Date)return value;
 
  if(typeof value==="number"){
   return new Date(value<1e12?value*1000:value);
@@ -472,19 +585,19 @@ function parseCandleTime(value){
  return new Date(NaN);
 }
 
-// ===============================
-// XAUS 实时黄金报价
-// ===============================
+// =====================================
+// GIÁ VÀNG XAUS
+// =====================================
 
 function findPrice(data){
- if(typeof data==="number") return data;
+ if(typeof data==="number")return data;
 
  if(typeof data==="string"){
   const n=Number(data);
   return Number.isFinite(n)?n:null;
  }
 
- if(!data || typeof data!=="object") return null;
+ if(!data||typeof data!=="object")return null;
 
  const keys=[
   "price","last","lastPrice","spot",
@@ -494,14 +607,14 @@ function findPrice(data){
  for(const key of keys){
   if(data[key]!==undefined){
    const n=Number(data[key]);
-   if(Number.isFinite(n)) return n;
+   if(Number.isFinite(n))return n;
   }
  }
 
  for(const key of ["data","result","quote"]){
   if(data[key]){
    const found=findPrice(data[key]);
-   if(found!==null) return found;
+   if(found!==null)return found;
   }
  }
 
@@ -510,9 +623,7 @@ function findPrice(data){
 
 async function updateGold(){
  try{
-  const response=await fetch(SPOT_URL,{
-   cache:"no-store"
-  });
+  const response=await fetch(SPOT_URL,{cache:"no-store"});
 
   if(!response.ok){
    throw new Error("HTTP "+response.status);
@@ -522,12 +633,13 @@ async function updateGold(){
   const price=findPrice(data);
 
   if(price===null){
-   throw new Error("Không nhận diện được giá từ dữ liệu XAUS");
+   throw new Error("Không nhận diện được giá XAUS");
   }
 
   $("goldPrice").textContent=formatPrice(price);
   $("goldUpdate").textContent=
-   "Nguồn XAUS · Cập nhật: "+new Date().toLocaleString("vi-VN");
+   "Nguồn XAUS · Cập nhật: "+
+   new Date().toLocaleString("vi-VN");
 
  }catch(error){
   $("goldUpdate").textContent=
@@ -535,18 +647,18 @@ async function updateGold(){
  }
 }
 
-// ===============================
-// HISTORICAL DATA API
-// ===============================
+// =====================================
+// CHUẨN HÓA DỮ LIỆU K-LINE
+// =====================================
 
 function normalizeCandles(payload){
  let rows=[];
 
  if(Array.isArray(payload)){
   rows=payload;
- }else if(payload && Array.isArray(payload.data)){
+ }else if(payload&&Array.isArray(payload.data)){
   rows=payload.data;
- }else if(payload && Array.isArray(payload.rows)){
+ }else if(payload&&Array.isArray(payload.rows)){
   rows=payload.rows;
  }else{
   return [];
@@ -554,22 +666,24 @@ function normalizeCandles(payload){
 
  return rows.map(row=>{
   const time=parseCandleTime(
-   row.Timestamp ?? row.timestamp ?? row.time ?? row.date
+   row.Timestamp??row.timestamp??row.time??row.date
   );
 
-  const open=Number(row.Open ?? row.open);
-  const high=Number(row.High ?? row.high);
-  const low=Number(row.Low ?? row.low);
-  const close=Number(row.Close ?? row.close);
+  const open=Number(row.Open??row.open);
+  const high=Number(row.High??row.high);
+  const low=Number(row.Low??row.low);
+  const close=Number(row.Close??row.close);
 
   const volume=Number(
-   row.TickVolume ?? row.tickVolume ?? row.volume ?? 0
+   row.TickVolume??row.tickVolume??row.volume??0
   );
 
   if(
-   Number.isNaN(time.getTime()) ||
-   ![open,high,low,close].every(Number.isFinite) ||
-   high<low
+   Number.isNaN(time.getTime())||
+   ![open,high,low,close].every(Number.isFinite)||
+   high<low||
+   high<Math.max(open,close)||
+   low>Math.min(open,close)
   ){
    return null;
   }
@@ -590,6 +704,10 @@ function uniqueCandles(candles){
  );
 }
 
+// =====================================
+// GỌI API LỊCH SỬ
+// =====================================
+
 async function fetchPeriod(from,to,tf){
  const url=new URL(HISTORY_URL);
 
@@ -608,7 +726,7 @@ async function fetchPeriod(from,to,tf){
  if(!response.ok){
   throw new Error(
    "AlgoSpecial HTTP "+response.status+
-   (body?" · "+body.slice(0,180):"")
+   (body?" · "+body.slice(0,150):"")
   );
  }
 
@@ -620,20 +738,19 @@ async function fetchPeriod(from,to,tf){
   throw new Error("API trả về dữ liệu không phải JSON");
  }
 
- if(payload && Number(payload.rows)===0){
-  return [];
- }
+ if(payload&&Number(payload.rows)===0)return [];
 
  return normalizeCandles(payload);
 }
 
-// ===============================
-// 分批下载历史数据
-// ===============================
+// =====================================
+// TẢI DỮ LIỆU THEO TỪNG KHOẢNG
+// =====================================
 
 async function fetchPeriodRange(days,tf,onProgress){
  const end=new Date();
  const start=new Date();
+
  start.setDate(start.getDate()-days);
 
  let all=[];
@@ -645,9 +762,7 @@ async function fetchPeriodRange(days,tf,onProgress){
   const chunkStart=new Date(current);
   const chunkEnd=new Date(current);
 
-  chunkEnd.setDate(
-   chunkEnd.getDate()+CHUNK_DAYS-1
-  );
+  chunkEnd.setDate(chunkEnd.getDate()+CHUNK_DAYS-1);
 
   if(chunkEnd>end){
    chunkEnd.setTime(end.getTime());
@@ -669,16 +784,14 @@ async function fetchPeriodRange(days,tf,onProgress){
    const candles=await fetchPeriod(from,to,tf);
    all=all.concat(candles);
   }catch(error){
-   errors.push({
-    from,to,message:error.message
-   });
+   errors.push({from,to,message:error.message});
    console.error(tf,from,to,error);
   }
 
   current=new Date(chunkEnd);
   current.setDate(current.getDate()+1);
 
-  await sleep(300);
+  await sleep(250);
  }
 
  return {
@@ -687,12 +800,12 @@ async function fetchPeriodRange(days,tf,onProgress){
  };
 }
 
-// ===============================
-// H4 历史数据
-// ===============================
+// =====================================
+// TẢI H4
+// =====================================
 
 async function loadHistory(){
- if(loadingH4) return;
+ if(loadingH4)return;
 
  loadingH4=true;
  setHistoryMessage("Đang tải dữ liệu H4 trong 6 tháng...");
@@ -706,12 +819,11 @@ async function loadHistory(){
 
   if(result.data.length<2){
    throw new Error(
-    "Không tìm thấy đủ dữ liệu H4. API có thể chưa cung cấp giai đoạn này."
+    "Không tìm thấy đủ dữ liệu H4. Kiểm tra API hoặc khoảng thời gian."
    );
   }
 
   allH4=result.data;
-  historyLoaded=true;
 
   buildHigherTimeframes();
 
@@ -720,21 +832,17 @@ async function loadHistory(){
    " nến · "+formatDate(allH4[0].time)+
    " đến "+formatDate(allH4[allH4.length-1].time)+
    (result.errors.length
-    ?" · Có "+result.errors.length+" khoảng dữ liệu bị lỗi"
-    :" · Tải hoàn tất")
+    ?" · Có "+result.errors.length+" khoảng bị lỗi"
+    :" · Tải hoàn tất"),
+   result.errors.length?"normal":"success"
   );
 
   renderTimeframe();
 
  }catch(error){
-  historyLoaded=false;
-  allH4=[];
-  allD1=[];
-  allW1=[];
-
   setHistoryMessage(
    "Không tải được H4: "+error.message,
-   true
+   "error"
   );
 
   renderTimeframe();
@@ -744,12 +852,12 @@ async function loadHistory(){
  }
 }
 
-// ===============================
-// H1 独立历史数据
-// ===============================
+// =====================================
+// TẢI H1
+// =====================================
 
 async function loadH1(){
- if(loadingH1) return;
+ if(loadingH1)return;
 
  loadingH1=true;
  setHistoryMessage("Đang tải dữ liệu H1 trong 6 tháng...");
@@ -772,34 +880,27 @@ async function loadH1(){
    " nến · "+formatDate(allH1[0].time)+
    " đến "+formatDate(allH1[allH1.length-1].time)+
    (result.errors.length
-    ?" · Có "+result.errors.length+" khoảng dữ liệu bị lỗi"
-    :" · Tải hoàn tất")
+    ?" · Có "+result.errors.length+" khoảng bị lỗi"
+    :" · Tải hoàn tất"),
+   result.errors.length?"normal":"success"
   );
 
-  if(currentTimeframe==="H1"){
-   renderTimeframe();
-  }
+  if(currentTimeframe==="H1")renderTimeframe();
 
  }catch(error){
-  allH1=[];
-
   setHistoryMessage(
    "Không tải được H1: "+error.message,
-   true
+   "error"
   );
-
-  if(currentTimeframe==="H1"){
-   renderTimeframe();
-  }
 
  }finally{
   loadingH1=false;
  }
 }
 
-// ===============================
-// H4 聚合 D1 / W1
-// ===============================
+// =====================================
+// GỘP DỮ LIỆU H4 THÀNH D1 / W1
+// =====================================
 
 function aggregateCandles(candles,type){
  const groups=new Map();
@@ -809,19 +910,21 @@ function aggregateCandles(candles,type){
   let key;
 
   if(type==="D1"){
-   key=
-    d.getFullYear()+"-"+
-    d.getMonth()+"-"+
-    d.getDate();
+   key=[
+    d.getFullYear(),
+    d.getMonth(),
+    d.getDate()
+   ].join("-");
   }else{
    const day=new Date(d);
    const weekday=(day.getDay()+6)%7;
    day.setDate(day.getDate()-weekday);
 
-   key=
-    day.getFullYear()+"-"+
-    day.getMonth()+"-"+
-    day.getDate();
+   key=[
+    day.getFullYear(),
+    day.getMonth(),
+    day.getDate()
+   ].join("-");
   }
 
   if(!groups.has(key)){
@@ -852,9 +955,9 @@ function buildHigherTimeframes(){
  allW1=aggregateCandles(allH4,"W1");
 }
 
-// ===============================
-// 技术指标
-// ===============================
+// =====================================
+// CHỈ BÁO MA / RSI / ATR
+// =====================================
 
 function sma(candles,period){
  const result=Array(candles.length).fill(null);
@@ -875,35 +978,37 @@ function sma(candles,period){
 function rsi(candles,period=14){
  const result=Array(candles.length).fill(null);
 
- if(candles.length<=period) return result;
+ if(candles.length<=period)return result;
 
  let gain=0;
  let loss=0;
 
  for(let i=1;i<=period;i++){
   const change=candles[i].close-candles[i-1].close;
-  if(change>0) gain+=change;
+
+  if(change>0)gain+=change;
   else loss-=change;
  }
 
  let avgGain=gain/period;
  let avgLoss=loss/period;
 
- result[period]=
-  avgLoss===0?100:
-  100-(100/(1+avgGain/avgLoss));
+ result[period]=avgLoss===0
+  ?100
+  :100-(100/(1+avgGain/avgLoss));
 
  for(let i=period+1;i<candles.length;i++){
   const change=candles[i].close-candles[i-1].close;
+
   const currentGain=Math.max(change,0);
   const currentLoss=Math.max(-change,0);
 
   avgGain=(avgGain*(period-1)+currentGain)/period;
   avgLoss=(avgLoss*(period-1)+currentLoss)/period;
 
-  result[i]=
-   avgLoss===0?100:
-   100-(100/(1+avgGain/avgLoss));
+  result[i]=avgLoss===0
+   ?100
+   :100-(100/(1+avgGain/avgLoss));
  }
 
  return result;
@@ -912,7 +1017,7 @@ function rsi(candles,period=14){
 function atr(candles,period=14){
  const result=Array(candles.length).fill(null);
 
- if(candles.length<=period) return result;
+ if(candles.length<=period)return result;
 
  const tr=[];
 
@@ -934,9 +1039,7 @@ function atr(candles,period=14){
 
  let current=0;
 
- for(let i=1;i<=period;i++){
-  current+=tr[i];
- }
+ for(let i=1;i<=period;i++)current+=tr[i];
 
  current/=period;
  result[period]=current;
@@ -949,14 +1052,12 @@ function atr(candles,period=14){
  return result;
 }
 
-// ===============================
-// 趋势判断
-// ===============================
+// =====================================
+// XU HƯỚNG
+// =====================================
 
 function trendFromCandles(candles){
- if(candles.length<50){
-  return "Không đủ dữ liệu";
- }
+ if(candles.length<50)return "Chưa đủ dữ liệu";
 
  const ma20=sma(candles,20);
  const ma50=sma(candles,50);
@@ -964,15 +1065,15 @@ function trendFromCandles(candles){
  const last=candles.length-1;
  const close=candles[last].close;
 
- if(ma20[last]===null || ma50[last]===null){
-  return "Không đủ dữ liệu";
+ if(ma20[last]===null||ma50[last]===null){
+  return "Chưa đủ dữ liệu";
  }
 
- if(close>ma20[last] && ma20[last]>ma50[last]){
+ if(close>ma20[last]&&ma20[last]>ma50[last]){
   return "Tăng";
  }
 
- if(close<ma20[last] && ma20[last]<ma50[last]){
+ if(close<ma20[last]&&ma20[last]<ma50[last]){
   return "Giảm";
  }
 
@@ -992,12 +1093,12 @@ function getSupportResistance(candles){
  };
 }
 
-// ===============================
-// 数据新鲜度
-// ===============================
+// =====================================
+// KIỂM TRA DỮ LIỆU MỚI HAY CŨ
+// =====================================
 
 function isRecentData(candles,timeframe){
- if(!candles.length) return false;
+ if(!candles.length)return false;
 
  const last=candles[candles.length-1].time;
  const age=(Date.now()-last.getTime())/3600000;
@@ -1009,71 +1110,76 @@ function isRecentData(candles,timeframe){
   W1:240
  };
 
- return age>=-1 && age<=limits[timeframe];
+ return age>=-1&&age<=limits[timeframe];
 }
 
-// ===============================
-// K线图绘制
-// ===============================
+// =====================================
+// VẼ BIỂU ĐỒ K-LINE
+// =====================================
 
 function drawChart(candles){
  const svg=$("candleChart");
 
  if(candles.length<2){
   svg.innerHTML=
-   '<text x="450" y="170" text-anchor="middle" fill="#91a2b9">Không đủ dữ liệu để vẽ biểu đồ</text>';
+   '<text x="500" y="190" text-anchor="middle" fill="#858b91">Không đủ dữ liệu để vẽ biểu đồ</text>';
   return;
  }
 
- const visible=candles.slice(-80);
- const width=900;
- const height=350;
- const left=15;
- const right=70;
- const top=20;
- const bottom=35;
+ // Tính MA trên toàn bộ dữ liệu, không chỉ 80 nến cuối.
+ const ma20All=sma(candles,20);
+ const ma50All=sma(candles,50);
+ const ma200All=sma(candles,200);
+
+ const startIndex=Math.max(0,candles.length-80);
+ const visible=candles.slice(startIndex);
+
+ const width=1000;
+ const height=390;
+ const left=18;
+ const right=78;
+ const top=22;
+ const bottom=42;
 
  const plotW=width-left-right;
  const plotH=height-top-bottom;
 
- const highs=visible.map(c=>c.high);
- const lows=visible.map(c=>c.low);
-
- const maxPrice=Math.max(...highs);
- const minPrice=Math.min(...lows);
+ const maxPrice=Math.max(...visible.map(c=>c.high));
+ const minPrice=Math.min(...visible.map(c=>c.low));
  const range=maxPrice-minPrice||1;
 
- const y=price=>
-  top+(maxPrice-price)/range*plotH;
-
- const x=i=>
-  left+(i+0.5)*plotW/visible.length;
+ const y=price=>top+(maxPrice-price)/range*plotH;
+ const x=i=>left+(i+.5)*plotW/visible.length;
 
  const candleWidth=Math.max(
   3,
-  Math.min(9,plotW/visible.length*0.55)
+  Math.min(10,plotW/visible.length*.58)
  );
 
  let html="";
 
+ // Lưới giá
  for(let i=0;i<5;i++){
   const gy=top+i*plotH/4;
   const price=maxPrice-i*range/4;
 
   html+=`
    <line x1="${left}" y1="${gy}" x2="${width-right}" y2="${gy}"
-    stroke="#263951" stroke-width="1"/>
-   <text x="${width-right+5}" y="${gy+4}"
-    fill="#91a2b9" font-size="11">${formatPrice(price)}</text>
+    stroke="#eee9df" stroke-width="1"/>
+   <text x="${width-right+6}" y="${gy+4}"
+    fill="#858b91" font-size="11">${formatPrice(price)}</text>
   `;
  }
 
+ // Nến
  visible.forEach((c,i)=>{
   const bullish=c.close>=c.open;
-  const color=bullish?"#24c78a":"#f06464";
+  const color=bullish?"#16865d":"#d34c4c";
+
   const cx=x(i);
   const yo=y(c.open);
   const yc=y(c.close);
+
   const bodyY=Math.min(yo,yc);
   const bodyH=Math.max(1,Math.abs(yc-yo));
 
@@ -1083,39 +1189,41 @@ function drawChart(candles){
     stroke="${color}" stroke-width="1.5"/>
    <rect x="${cx-candleWidth/2}" y="${bodyY}"
     width="${candleWidth}" height="${bodyH}"
-    fill="${color}"/>
+    rx="1" fill="${color}"/>
   `;
  });
 
- const ma20=sma(visible,20);
- const ma50=sma(visible,50);
- const ma200=sma(visible,200);
-
+ // Đường MA: lấy đúng chỉ số từ toàn bộ dữ liệu
  function makeLine(values,color){
   const points=[];
 
-  values.forEach((value,i)=>{
+  for(let i=startIndex;i<candles.length;i++){
+   const value=values[i];
+
    if(value!==null){
-    points.push(`${x(i)},${y(value)}`);
+    points.push(`${x(i-startIndex)},${y(value)}`);
    }
-  });
+  }
 
-  if(points.length<2) return "";
+  if(points.length<2)return "";
 
-  return `<polyline points="${points.join(" ")}"
-   fill="none" stroke="${color}" stroke-width="1.7"/>`;
+  return `
+   <polyline points="${points.join(" ")}"
+    fill="none" stroke="${color}" stroke-width="2"
+    stroke-linejoin="round" stroke-linecap="round"/>
+  `;
  }
 
- html+=makeLine(ma20,"#e9bd59");
- html+=makeLine(ma50,"#63a8ff");
- html+=makeLine(ma200,"#d18cff");
+ html+=makeLine(ma20All,"#bd8b25");
+ html+=makeLine(ma50All,"#477fb7");
+ html+=makeLine(ma200All,"#9870b7");
 
  html+=`
-  <text x="${left}" y="${height-8}" fill="#91a2b9" font-size="11">
+  <text x="${left}" y="${height-10}" fill="#858b91" font-size="11">
    ${formatDate(visible[0].time)}
   </text>
-  <text x="${width-right}" y="${height-8}"
-   text-anchor="end" fill="#91a2b9" font-size="11">
+  <text x="${width-right}" y="${height-10}"
+   text-anchor="end" fill="#858b91" font-size="11">
    ${formatDate(visible[visible.length-1].time)}
   </text>
  `;
@@ -1123,9 +1231,9 @@ function drawChart(candles){
  svg.innerHTML=html;
 }
 
-// ===============================
-// 切换周期
-// ===============================
+// =====================================
+// CHỌN KHUNG THỜI GIAN
+// =====================================
 
 function selectTimeframe(tf){
  currentTimeframe=tf;
@@ -1141,17 +1249,17 @@ function selectTimeframe(tf){
 }
 
 function getCurrentCandles(){
- if(currentTimeframe==="H4") return allH4;
- if(currentTimeframe==="H1") return allH1;
- if(currentTimeframe==="D1") return allD1;
- if(currentTimeframe==="W1") return allW1;
+ if(currentTimeframe==="H4")return allH4;
+ if(currentTimeframe==="H1")return allH1;
+ if(currentTimeframe==="D1")return allD1;
+ if(currentTimeframe==="W1")return allW1;
 
  return [];
 }
 
-// ===============================
-// 渲染分析
-// ===============================
+// =====================================
+// HIỂN THỊ PHÂN TÍCH
+// =====================================
 
 function renderTimeframe(){
  const candles=getCurrentCandles();
@@ -1169,9 +1277,6 @@ function renderTimeframe(){
   $("ma200Value").textContent="—";
   $("rsiValue").textContent="—";
   $("atrValue").textContent="—";
-
-  $("supportValue").textContent="—";
-  $("resistanceValue").textContent="—";
 
   $("mainSignal").textContent="WAIT";
   $("signalReason").textContent=
@@ -1200,21 +1305,27 @@ function renderTimeframe(){
   formatDate(candles[last].time);
 
  $("ma20Value").textContent=
-  ma20[last]===null?"Thiếu dữ liệu":formatPrice(ma20[last]);
+  ma20[last]===null?"Chưa đủ dữ liệu":formatPrice(ma20[last]);
 
  $("ma50Value").textContent=
-  ma50[last]===null?"Thiếu dữ liệu":formatPrice(ma50[last]);
+  ma50[last]===null?"Chưa đủ dữ liệu":formatPrice(ma50[last]);
 
  $("ma200Value").textContent=
-  ma200[last]===null?"Thiếu dữ liệu":formatPrice(ma200[last]);
+  ma200[last]===null?"Chưa đủ dữ liệu":formatPrice(ma200[last]);
 
  $("rsiValue").textContent=
-  rsiValues[last]===null?"Thiếu dữ liệu":rsiValues[last].toFixed(2);
+  rsiValues[last]===null
+   ?"Chưa đủ dữ liệu"
+   :rsiValues[last].toFixed(2);
 
  $("atrValue").textContent=
-  atrValues[last]===null?"Thiếu dữ liệu":formatPrice(atrValues[last]);
+  atrValues[last]===null
+   ?"Chưa đủ dữ liệu"
+   :formatPrice(atrValues[last]);
 
- const levels=getSupportResistance(candles);
+ const levels=getSupportResistance(
+  currentTimeframe==="H4"?candles:allH4
+ );
 
  $("supportValue").textContent=
   levels.support===null?"—":formatPrice(levels.support);
@@ -1232,16 +1343,6 @@ function renderTimeframe(){
 
  drawChart(candles);
 
- if(
-  currentTimeframe==="H4" &&
-  allD1.length>0 &&
-  allW1.length>0
- ){
-  $("dailyTrend").textContent=trendFromCandles(allD1);
-  $("weeklyTrend").textContent=trendFromCandles(allW1);
- }
-
- // Không tự tạo BUY/SELL khi thiếu xác nhận vĩ mô.
  $("mainSignal").textContent="WAIT";
 
  $("signalReason").textContent=
@@ -1252,9 +1353,9 @@ function renderTimeframe(){
  updateChecklist();
 }
 
-// ===============================
-// 交易检查清单
-// ===============================
+// =====================================
+// CHECKLIST
+// =====================================
 
 function updateChecklist(){
  const weekly=trendFromCandles(allW1);
@@ -1270,25 +1371,28 @@ function updateChecklist(){
 
  const candles=getCurrentCandles();
 
- if(candles.length>=200){
-  $("checkMA").textContent="MA20 / MA50 / MA200 · Đã đủ dữ liệu";
- }else{
-  $("checkMA").textContent="MA200 · Chưa đủ 200 nến trong khung hiện tại";
- }
+ $("checkMA").textContent=
+  candles.length>=200
+   ?"MA20 / MA50 / MA200 · Đủ dữ liệu"
+   :"MA200 · Chưa đủ 200 nến";
 
  $("checkRSI").textContent=
-  candles.length>=15?"RSI14 · Có thể tính":"RSI14 · Chưa đủ dữ liệu";
+  candles.length>=15
+   ?"RSI14 · Có dữ liệu tính toán"
+   :"RSI14 · Chưa đủ dữ liệu";
 
  $("checkATR").textContent=
-  candles.length>=15?"ATR14 · Có thể tính":"ATR14 · Chưa đủ dữ liệu";
+  candles.length>=15
+   ?"ATR14 · Có dữ liệu tính toán"
+   :"ATR14 · Chưa đủ dữ liệu";
 
  $("checkMacro").textContent=
   "DXY / Lợi suất Mỹ / Lịch kinh tế · Chưa kết nối";
 }
 
-// ===============================
-// 仓位计算器
-// ===============================
+// =====================================
+// TÍNH KHỐI LƯỢNG VÀ QUẢN LÝ RỦI RO
+// =====================================
 
 function calculatePosition(){
  const balance=Number($("balance").value);
@@ -1296,29 +1400,33 @@ function calculatePosition(){
  const entry=Number($("entryPrice").value);
  const stop=Number($("stopPrice").value);
  const contractSize=Number($("contractSize").value);
+ const leverage=Number($("leverage").value);
  const direction=$("tradeDirection").value;
 
  if(
-  !Number.isFinite(balance) ||
-  !Number.isFinite(riskPercent) ||
-  !Number.isFinite(entry) ||
-  !Number.isFinite(stop) ||
-  !Number.isFinite(contractSize) ||
-  balance<=0 ||
-  riskPercent<=0 ||
-  riskPercent>1 ||
-  entry<=0 ||
-  stop<=0 ||
-  contractSize<=0
+  !Number.isFinite(balance)||
+  !Number.isFinite(riskPercent)||
+  !Number.isFinite(entry)||
+  !Number.isFinite(stop)||
+  !Number.isFinite(contractSize)||
+  !Number.isFinite(leverage)||
+  balance<=0||
+  riskPercent<=0||
+  riskPercent>1||
+  entry<=0||
+  stop<=0||
+  contractSize<=0||
+  leverage<1||
+  leverage>10
  ){
   $("calcMessage").textContent=
-   "Vui lòng nhập dữ liệu hợp lệ. Rủi ro tối đa 1%.";
+   "Dữ liệu không hợp lệ. Rủi ro tối đa 1%, đòn bẩy tối đa 10x.";
   return;
  }
 
  if(
-  (direction==="BUY" && stop>=entry) ||
-  (direction==="SELL" && stop<=entry)
+  (direction==="BUY"&&stop>=entry)||
+  (direction==="SELL"&&stop<=entry)
  ){
   $("calcMessage").textContent=
    "Stop Loss không đúng hướng giao dịch.";
@@ -1328,18 +1436,21 @@ function calculatePosition(){
  const distance=Math.abs(entry-stop);
  const riskMoney=balance*riskPercent/100;
 
- const rawLot=
-  riskMoney/(distance*contractSize);
+ const rawLot=riskMoney/(distance*contractSize);
 
- const lot=Math.floor(rawLot*100)/100;
+ // Giới hạn khối lượng theo đòn bẩy và số dư
+ const maxLot=balance*leverage/(entry*contractSize);
 
- if(lot<=0){
+ const lot=Math.floor(Math.min(rawLot,maxLot)*100)/100;
+
+ if(lot<0.01){
   $("calcMessage").textContent=
-   "Khối lượng tính được nhỏ hơn 0.01 lot.";
+   "Khối lượng nhỏ hơn 0.01 lot. Không nên tăng rủi ro để ép vào lệnh.";
   return;
  }
 
  const actualRisk=lot*distance*contractSize;
+ const margin=lot*entry*contractSize/leverage;
 
  $("riskMoney").textContent=
   riskMoney.toFixed(2)+" USD";
@@ -1353,36 +1464,42 @@ function calculatePosition(){
  $("actualRisk").textContent=
   actualRisk.toFixed(2)+" USD";
 
+ $("marginRequired").textContent=
+  margin.toFixed(2)+" USD";
+
  $("calcMessage").textContent=
-  "Khối lượng ước tính. Cần kiểm tra quy cách hợp đồng và phí của nhà môi giới trước khi giao dịch.";
+  lot<rawLot
+   ?"Khối lượng đã được giới hạn theo đòn bẩy và số dư. Kiểm tra thêm phí, spread và quy cách hợp đồng của nhà môi giới."
+   :"Khối lượng ước tính theo mức rủi ro đã chọn. Kiểm tra phí, spread và quy cách hợp đồng của nhà môi giới.";
 }
 
-// ===============================
-// 刷新全部
-// ===============================
+// =====================================
+// LÀM MỚI TẤT CẢ
+// =====================================
 
 async function refreshAll(){
- $("refreshButton").disabled=true;
+ const button=$("refreshButton");
+ button.disabled=true;
+ button.textContent="Đang tải...";
 
  try{
   await updateGold();
   await loadHistory();
   await loadH1();
  }finally{
-  $("refreshButton").disabled=false;
+  button.disabled=false;
+  button.textContent="↻ Làm mới dữ liệu";
  }
 }
 
-// ===============================
-// 启动
-// ===============================
+// =====================================
+// KHỞI ĐỘNG
+// =====================================
 
 updateGold();
 
 setInterval(updateGold,60000);
 
-// 先加载H4，再独立加载H1。
-// H1失败不会删除H4数据。
 loadHistory().then(()=>{
  loadH1();
 });
