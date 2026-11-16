@@ -1,286 +1,141 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f5f3ed">
+<meta name="theme-color" content="#fffaf0">
 <title>GOLD PRO - Phân tích vàng thông minh</title>
-
 <style>
 :root{
- --bg:#f4f2ec;
- --panel:#ffffff;
- --panel2:#faf9f5;
- --border:#e8e3d8;
- --text:#252b32;
- --muted:#858b91;
- --gold:#bd8b25;
- --gold-light:#f7edda;
- --green:#16865d;
- --red:#d34c4c;
- --blue:#477fb7;
- --purple:#9870b7;
- --shadow:0 4px 18px rgba(45,39,25,.055);
+ --bg:#f6f4ee;--panel:#fff;--panel2:#faf8f2;--border:#ece6d8;--text:#1f242b;--muted:#8a9097;
+ --gold:#b8861b;--gold2:#e2b24a;--gold-light:#fbf1d9;--green:#0f9d6b;--red:#e04b4b;--blue:#3b82c4;--purple:#8e63c0;
+ --shadow:0 1px 2px rgba(60,45,10,.04),0 8px 28px rgba(60,45,10,.07);
+ --radius:16px;
 }
 *{box-sizing:border-box}
-body{
- margin:0;
- background:var(--bg);
- color:var(--text);
- font-family:Arial,Helvetica,sans-serif;
-}
-header{
- background:#fff;
- border-bottom:1px solid var(--border);
- padding:15px 22px;
- display:flex;
- justify-content:space-between;
- align-items:center;
- gap:12px;
- flex-wrap:wrap;
- position:sticky;
- top:0;
- z-index:10;
-}
-.logo{
- font-size:25px;
- font-weight:900;
- letter-spacing:1.5px;
- color:#252525;
-}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--text);font-family:-apple-system,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
+ background:radial-gradient(900px 420px at 85% -80px,#fbebc2 0,transparent 70%),radial-gradient(700px 380px at -10% 0,#fff6df 0,transparent 70%),var(--bg);
+ background-attachment:fixed;min-height:100vh}
+header{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:12px;
+ padding:calc(12px + env(safe-area-inset-top,0px)) 22px 12px;background:rgba(255,255,255,.82);
+ backdrop-filter:saturate(1.6) blur(14px);-webkit-backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:15px;
+ background:linear-gradient(135deg,#f0c765,#b8861b);box-shadow:0 6px 16px rgba(184,134,27,.35)}
+.logo{font-size:21px;font-weight:900;letter-spacing:1.2px;line-height:1}
 .logo span{color:var(--gold)}
-.subtitle{
- font-size:11px;
- color:var(--muted);
- margin-top:5px;
-}
+.subtitle{font-size:11px;color:var(--muted);margin-top:4px}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--green);
+ background:#e8f8f0;border:1px solid #cdeedd;padding:4px 9px;border-radius:99px;margin-right:10px}
+.live:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(15,157,107,.5)}100%{box-shadow:0 0 0 8px rgba(15,157,107,0)}}
+.head-right{display:flex;align-items:center}
 button,input,select{font:inherit}
-button{
- border:1px solid var(--border);
- background:#fff;
- color:var(--text);
- padding:10px 14px;
- border-radius:8px;
- cursor:pointer;
- font-size:12px;
- font-weight:600;
- transition:.15s;
-}
-button:hover{
- border-color:var(--gold);
- color:var(--gold);
-}
-button.active{
- background:var(--gold);
- border-color:var(--gold);
- color:#fff;
-}
-button:disabled{opacity:.55;cursor:wait}
-.refresh{
- background:#282a2d;
- color:#fff;
- border-color:#282a2d;
-}
-.refresh:hover{background:var(--gold);color:#fff}
-.container{
- max-width:1450px;
- margin:auto;
- padding:20px;
-}
-.card{
- background:var(--panel);
- border:1px solid var(--border);
- border-radius:13px;
- padding:18px;
- margin-bottom:15px;
- min-width:0;
- box-shadow:var(--shadow);
-}
-.grid{display:grid;gap:15px}
+button{border:1px solid var(--border);background:#fff;color:var(--text);padding:10px 15px;border-radius:10px;cursor:pointer;
+ font-size:12.5px;font-weight:700;transition:.18s;touch-action:manipulation}
+button:hover{border-color:var(--gold2);color:var(--gold);transform:translateY(-1px)}
+button:disabled{opacity:.55;cursor:wait;transform:none}
+.refresh{background:linear-gradient(135deg,#2b2d31,#15171a);color:#fff;border:0;box-shadow:0 6px 16px rgba(20,20,20,.22)}
+.refresh:hover{background:linear-gradient(135deg,#e2b24a,#b8861b);color:#fff}
+.btn-gold{width:100%;background:linear-gradient(135deg,#e8bb55,#b8861b);color:#fff;border:0;padding:13px;font-size:13px;
+ box-shadow:0 8px 20px rgba(184,134,27,.3)}
+.btn-gold:hover{color:#fff;filter:brightness(1.05)}
+.container{max-width:1280px;margin:auto;padding:20px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;min-width:0;box-shadow:var(--shadow)}
+.grid{display:grid;gap:16px}
 .grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
-.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .grid4{grid-template-columns:repeat(4,minmax(0,1fr))}
-.label{
- font-size:11px;
- color:var(--muted);
- margin-bottom:9px;
- font-weight:700;
- letter-spacing:.45px;
-}
-.value{font-size:22px;font-weight:800}
-.gold{color:var(--gold)}
-.green{color:var(--green)}
-.red{color:var(--red)}
-.blue{color:var(--blue)}
-.muted{color:var(--muted)}
-.small{font-size:12px;line-height:1.6}
-.section-title{
- font-size:15px;
- font-weight:800;
- margin:0 0 16px;
- color:#30343a;
- display:flex;
- align-items:center;
- gap:9px;
-}
-.section-title:before{
- content:"";
- width:4px;
- height:17px;
- border-radius:5px;
- background:var(--gold);
-}
-.price{
- font-size:39px;
- color:var(--gold);
- font-weight:900;
- letter-spacing:-1px;
- margin:8px 0;
-}
-.signal{
- font-size:30px;
- font-weight:900;
- color:var(--gold);
- margin:7px 0;
-}
-.price-card{
- background:linear-gradient(135deg,#fff 0%,#fffaf0 100%);
- border-color:#eadcc0;
-}
-.signal-card{background:#fff}
-.status{
- padding:11px 13px;
- border-radius:8px;
- background:#f7f5ef;
- color:#777d83;
- font-size:12px;
- line-height:1.7;
- overflow-wrap:anywhere;
- border:1px solid #eee9df;
-}
-.status.error{
- color:#b93d3d;
- background:#fff1ef;
- border-color:#f1d3cf;
-}
-.status.success{
- color:#167c55;
- background:#edfaf3;
- border-color:#d2eddf;
-}
-.tabs{
- display:flex;
- gap:7px;
- flex-wrap:wrap;
- margin-bottom:13px;
-}
-.chart-wrap{
- width:100%;
- overflow:hidden;
- background:#fffefa;
- border:1px solid #eee9df;
- border-radius:9px;
- min-height:280px;
-}
+.grid .card{margin-bottom:0}
+.hero{margin-bottom:16px}
+.label{font-size:10.5px;color:var(--muted);margin-bottom:8px;font-weight:800;letter-spacing:.9px;text-transform:uppercase}
+.value{font-size:21px;font-weight:800}
+.green{color:var(--green)}.red{color:var(--red)}.gold{color:var(--gold)}.muted{color:var(--muted)}
+.small{font-size:12px;line-height:1.65}
+.section-title{display:flex;align-items:center;gap:10px;margin:0 0 16px;font-size:14px;font-weight:800;letter-spacing:.4px;color:#2a2f36}
+.section-title:before{content:"";width:4px;height:16px;border-radius:4px;background:linear-gradient(var(--gold2),var(--gold))}
+.price-card{position:relative;overflow:hidden;border:0;color:#fff;
+ background:linear-gradient(135deg,#2a2418 0%,#3b2f17 45%,#8a6416 100%);box-shadow:0 14px 36px rgba(110,80,15,.32)}
+.price-card:after{content:"Au";position:absolute;right:-8px;bottom:-40px;font-size:190px;font-weight:900;color:rgba(255,255,255,.07);line-height:1}
+.price-card .label{color:#e9d7a8}
+.price-card .muted{color:#d9c58f}
+.price{font-size:46px;font-weight:900;letter-spacing:-1.5px;margin:6px 0;color:#ffe29a;font-variant-numeric:tabular-nums}
+.signal{display:inline-block;font-size:26px;font-weight:900;margin:4px 0 10px;padding:8px 22px;border-radius:12px;
+ color:#a8740f;background:var(--gold-light);border:1px solid #f0dcaa;letter-spacing:1px}
+.signal.buy{color:var(--green);background:#e8f8f0;border-color:#cdeedd}
+.signal.sell{color:var(--red);background:#fdeded;border-color:#f6cfcf}
+.status{padding:12px 14px;border-radius:10px;background:var(--panel2);color:#6d737a;font-size:12px;line-height:1.7;overflow-wrap:anywhere;border:1px solid var(--border)}
+.status.error{color:#b93d3d;background:#fff1ef;border-color:#f1d3cf}
+.status.success{color:#0c7a53;background:#edfaf3;border-color:#d2eddf}
+.tabs{display:inline-flex;gap:4px;flex-wrap:wrap;padding:4px;background:#f2efe6;border-radius:12px;margin-bottom:14px}
+.tabs button{border:0;background:transparent;padding:8px 18px;box-shadow:none}
+.tabs button.active{background:#fff;color:var(--gold);box-shadow:0 2px 8px rgba(60,45,10,.12)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.chart-wrap{width:100%;overflow:hidden;background:linear-gradient(#fffefb,#fbf8f0);border:1px solid var(--border);border-radius:12px;min-height:280px}
 svg{display:block;width:100%;height:auto}
-.metric{
- background:var(--panel2);
- border:1px solid #f0ede6;
- border-radius:9px;
- padding:13px;
- min-width:0;
-}
-.metric .value{
- font-size:18px;
- overflow-wrap:anywhere;
-}
-table{width:100%;border-collapse:collapse;font-size:13px}
-td,th{
- padding:10px 8px;
- border-bottom:1px solid var(--border);
- text-align:left;
-}
-th{color:var(--muted);font-weight:600}
-input,select{
- width:100%;
- padding:11px;
- border-radius:8px;
- border:1px solid var(--border);
- background:#fff;
- color:var(--text);
- margin:6px 0 13px;
- outline:none;
-}
-input:focus,select:focus{border-color:var(--gold)}
-label{font-size:12px;color:#737980;font-weight:600}
-.check-item{
- padding:10px 2px;
- border-bottom:1px solid #f0ede7;
- font-size:12px;
- line-height:1.6;
-}
-.scenario{
- border:1px solid #eee9df;
- background:#fcfbf8;
-}
-.scenario-title{
- font-weight:800;
- margin-bottom:10px;
- font-size:13px;
-}
-footer{
- padding:22px 15px;
- text-align:center;
- color:var(--muted);
- font-size:11px;
-}
-hr{border:0;border-top:1px solid var(--border);margin:15px 0}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.metric{background:var(--panel2);border:1px solid #f0ece1;border-radius:12px;padding:14px;min-width:0;transition:.18s}
+.metric:hover{border-color:#e6d6ab;background:#fffdf6}
+.metric .value{font-size:17px;overflow-wrap:anywhere}
+.check-item{padding:11px 4px;border-bottom:1px dashed #eee8da;font-size:12.5px;line-height:1.6}
+.check-item:last-of-type{border-bottom:0}
+label{font-size:12px;color:#6d737a;font-weight:700}
+input,select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--text);margin:6px 0 13px;outline:none;transition:.15s}
+input:focus,select:focus{border-color:var(--gold2);box-shadow:0 0 0 4px rgba(226,178,74,.18)}
+.scenario{background:#fff}
+.scenario.buy{border-top:3px solid var(--green)}
+.scenario.sell{border-top:3px solid var(--red)}
+.scenario-title{font-weight:900;margin-bottom:10px;font-size:13px;letter-spacing:.5px}
+.sc-list{margin-top:12px;line-height:2}
+footer{padding:26px 15px calc(26px + env(safe-area-inset-bottom,0px));text-align:center;color:var(--muted);font-size:11px}
+hr{border:0;border-top:1px solid var(--border);margin:14px 0}
 @media(max-width:800px){
- header{padding:13px 14px}
- .container{padding:11px}
- .card{padding:14px}
+ header{padding-left:14px;padding-right:14px}
+ .container{padding:12px}
+ .card{padding:16px}
  .grid4{grid-template-columns:repeat(2,minmax(0,1fr))}
- .price{font-size:32px}
+ .price{font-size:38px}
+ .live{display:none}
 }
-@media(max-width:520px){
- .grid2,.grid3{grid-template-columns:1fr}
- .grid4{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:560px){
+ .grid2{grid-template-columns:1fr}
  .value{font-size:19px}
- .metric .value{font-size:16px}
- .container{padding:9px}
- .card{padding:12px}
- .logo{font-size:22px}
+ .metric .value{font-size:15px}
+ .logo{font-size:18px}
+ .subtitle{display:none}
 }
 </style>
 </head>
-
 <body>
 
 <header>
- <div>
-  <div class="logo">GOLD <span>PRO</span></div>
-  <div class="subtitle">Hệ thống phân tích và quản trị rủi ro XAUUSD</div>
+ <div class="brand">
+  <div class="mark">Au</div>
+  <div>
+   <div class="logo">GOLD <span>PRO</span></div>
+   <div class="subtitle">Hệ thống phân tích và quản trị rủi ro XAUUSD</div>
+  </div>
  </div>
- <button class="refresh" id="refreshButton" onclick="refreshAll()">↻ Làm mới dữ liệu</button>
+ <div class="head-right">
+  <span class="live">TRỰC TIẾP</span>
+  <button class="refresh" id="refreshButton" onclick="refreshAll()">↻ Làm mới</button>
+ </div>
 </header>
 
 <main class="container">
 
- <section class="grid grid2">
+ <section class="grid grid2 hero">
   <div class="card price-card">
-   <div class="label">GIÁ VÀNG XAUUSD</div>
+   <div class="label">Giá vàng XAUUSD</div>
    <div class="price" id="goldPrice">Đang tải...</div>
    <div class="small muted">USD / OZ · Giá tham khảo</div>
    <div class="small muted" id="goldUpdate" style="margin-top:10px">Đang kết nối XAUS...</div>
   </div>
-
-  <div class="card signal-card">
-   <div class="label">TÍN HIỆU GIAO DỊCH</div>
+  <div class="card">
+   <div class="label">Tín hiệu giao dịch</div>
    <div class="signal" id="mainSignal">WAIT</div>
-   <div class="small muted" id="signalReason">
-    Đang chờ dữ liệu và xác nhận thị trường.
-   </div>
+   <div class="small muted" id="signalReason">Đang chờ dữ liệu và xác nhận thị trường.</div>
    <hr>
    <div class="small muted">Hệ thống không tự động vào lệnh.</div>
   </div>
@@ -288,16 +143,12 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 
  <section class="card">
   <h3 class="section-title">TRẠNG THÁI DỮ LIỆU LỊCH SỬ</h3>
-  <div id="historyStatus" class="status">
-   Chưa tải dữ liệu lịch sử.
-  </div>
-  <div class="tabs" style="margin-top:13px">
+  <div id="historyStatus" class="status">Chưa tải dữ liệu lịch sử.</div>
+  <div class="actions">
    <button onclick="loadHistory()">Tải H4 · 6 tháng</button>
    <button onclick="loadH1()">Tải H1 · 6 tháng</button>
   </div>
-  <div class="small muted">
-   Nguồn dữ liệu: AlgoSpecial. Hệ thống không tự tạo nến khi thiếu dữ liệu.
-  </div>
+  <div class="small muted">Nguồn dữ liệu: AlgoSpecial. Hệ thống không tự tạo nến khi thiếu dữ liệu.</div>
  </section>
 
  <section class="card">
@@ -308,79 +159,40 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
    <button data-tf="D1" onclick="selectTimeframe('D1')">D1</button>
    <button data-tf="W1" onclick="selectTimeframe('W1')">W1</button>
   </div>
-  <div class="small muted" id="chartInfo" style="margin-bottom:11px">
-   Đang chờ dữ liệu...
-  </div>
+  <div class="small muted" id="chartInfo" style="margin-bottom:11px">Đang chờ dữ liệu...</div>
   <div class="chart-wrap">
    <svg id="candleChart" viewBox="0 0 1000 390" preserveAspectRatio="none">
-    <text x="500" y="190" text-anchor="middle" fill="#858b91">
-     Đang chờ dữ liệu K-line
-    </text>
+    <text x="500" y="190" text-anchor="middle" fill="#8a9097">Đang chờ dữ liệu K-line</text>
    </svg>
   </div>
-  <div class="small muted" style="margin-top:12px">
-   MA20: Vàng · MA50: Xanh dương · MA200: Tím.
-   Các đường trung bình được tính trên toàn bộ dữ liệu trước khi hiển thị.
+  <div class="legend">
+   <span><i style="background:#b8861b"></i>MA20</span>
+   <span><i style="background:#3b82c4"></i>MA50</span>
+   <span><i style="background:#8e63c0"></i>MA200</span>
   </div>
  </section>
 
  <section class="card">
   <h3 class="section-title">PHÂN TÍCH ĐA KHUNG THỜI GIAN</h3>
   <div class="grid grid4">
-   <div class="metric">
-    <div class="label">XU HƯỚNG TUẦN</div>
-    <div class="value" id="weeklyTrend">Chưa đủ dữ liệu</div>
-   </div>
-   <div class="metric">
-    <div class="label">CẤU TRÚC NGÀY</div>
-    <div class="value" id="dailyTrend">Chưa đủ dữ liệu</div>
-   </div>
-   <div class="metric">
-    <div class="label">HỖ TRỢ H4</div>
-    <div class="value green" id="supportValue">—</div>
-   </div>
-   <div class="metric">
-    <div class="label">KHÁNG CỰ H4</div>
-    <div class="value red" id="resistanceValue">—</div>
-   </div>
+   <div class="metric"><div class="label">Xu hướng tuần</div><div class="value" id="weeklyTrend">Chưa đủ dữ liệu</div></div>
+   <div class="metric"><div class="label">Cấu trúc ngày</div><div class="value" id="dailyTrend">Chưa đủ dữ liệu</div></div>
+   <div class="metric"><div class="label">Hỗ trợ H4</div><div class="value green" id="supportValue">—</div></div>
+   <div class="metric"><div class="label">Kháng cự H4</div><div class="value red" id="resistanceValue">—</div></div>
   </div>
  </section>
 
  <section class="card">
   <h3 class="section-title">CHỈ BÁO KỸ THUẬT</h3>
   <div class="grid grid4">
-   <div class="metric">
-    <div class="label">MA20</div>
-    <div class="value" id="ma20Value">—</div>
-   </div>
-   <div class="metric">
-    <div class="label">MA50</div>
-    <div class="value" id="ma50Value">—</div>
-   </div>
-   <div class="metric">
-    <div class="label">MA200</div>
-    <div class="value" id="ma200Value">—</div>
-   </div>
-   <div class="metric">
-    <div class="label">RSI14</div>
-    <div class="value" id="rsiValue">—</div>
-   </div>
-   <div class="metric">
-    <div class="label">ATR14</div>
-    <div class="value" id="atrValue">—</div>
-   </div>
-   <div class="metric">
-    <div class="label">SỐ NẾN ĐÃ TẢI</div>
-    <div class="value" id="candleCount">0</div>
-   </div>
-   <div class="metric">
-    <div class="label">NẾN CUỐI CÙNG</div>
-    <div class="value" id="lastCandleTime">—</div>
-   </div>
-   <div class="metric">
-    <div class="label">TRẠNG THÁI DỮ LIỆU</div>
-    <div class="value" id="indicatorStatus">Chưa tải</div>
-   </div>
+   <div class="metric"><div class="label">MA20</div><div class="value" id="ma20Value">—</div></div>
+   <div class="metric"><div class="label">MA50</div><div class="value" id="ma50Value">—</div></div>
+   <div class="metric"><div class="label">MA200</div><div class="value" id="ma200Value">—</div></div>
+   <div class="metric"><div class="label">RSI14</div><div class="value" id="rsiValue">—</div></div>
+   <div class="metric"><div class="label">ATR14</div><div class="value" id="atrValue">—</div></div>
+   <div class="metric"><div class="label">Số nến đã tải</div><div class="value" id="candleCount">0</div></div>
+   <div class="metric"><div class="label">Nến cuối cùng</div><div class="value" id="lastCandleTime">—</div></div>
+   <div class="metric"><div class="label">Trạng thái dữ liệu</div><div class="value" id="indicatorStatus">Chưa tải</div></div>
   </div>
  </section>
 
@@ -392,9 +204,7 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
   <div class="check-item" id="checkMA">MA · Đang chờ dữ liệu</div>
   <div class="check-item" id="checkRSI">RSI · Đang chờ dữ liệu</div>
   <div class="check-item" id="checkATR">ATR · Đang chờ dữ liệu</div>
-  <div class="check-item" id="checkMacro">
-   DXY / Lợi suất trái phiếu Mỹ / Lịch kinh tế · Chưa kết nối
-  </div>
+  <div class="check-item" id="checkMacro">DXY / Lợi suất trái phiếu Mỹ / Lịch kinh tế · Chưa kết nối</div>
   <div class="status" style="margin-top:13px">
    Chưa tích hợp dữ liệu DXY, lợi suất trái phiếu Mỹ và lịch kinh tế trực tiếp.
    Hệ thống mặc định WAIT, không xác nhận BUY hoặc SELL khi thiếu dữ liệu xác nhận.
@@ -406,56 +216,28 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
   <div class="grid grid2">
    <div>
     <label>Số dư tài khoản (USD)</label>
-    <input id="balance" type="number" value="10000" min="0">
-
+    <input id="balance" type="number" inputmode="decimal" value="10000" min="0">
     <label>Rủi ro mỗi lệnh (%) · Tối đa 1%</label>
-    <input id="riskPercent" type="number" value="1" min="0.01" max="1" step="0.01">
-
+    <input id="riskPercent" type="number" inputmode="decimal" value="1" min="0.01" max="1" step="0.01">
     <label>Giá vào lệnh</label>
-    <input id="entryPrice" type="number" placeholder="Nhập giá vào lệnh">
-
+    <input id="entryPrice" type="number" inputmode="decimal" placeholder="Nhập giá vào lệnh">
     <label>Giá dừng lỗ (Stop Loss)</label>
-    <input id="stopPrice" type="number" placeholder="Nhập giá Stop Loss">
-
+    <input id="stopPrice" type="number" inputmode="decimal" placeholder="Nhập giá Stop Loss">
     <label>Kích thước hợp đồng (oz / lot)</label>
-    <input id="contractSize" type="number" value="100" min="0.01">
-
+    <input id="contractSize" type="number" inputmode="decimal" value="100" min="0.01">
     <label>Đòn bẩy · Tối đa 10x</label>
-    <input id="leverage" type="number" value="10" min="1" max="10">
-
+    <input id="leverage" type="number" inputmode="decimal" value="10" min="1" max="10">
     <label>Hướng giao dịch</label>
-    <select id="tradeDirection">
-     <option value="BUY">BUY</option>
-     <option value="SELL">SELL</option>
-    </select>
-
-    <button onclick="calculatePosition()">TÍNH KHỐI LƯỢNG</button>
+    <select id="tradeDirection"><option value="BUY">BUY</option><option value="SELL">SELL</option></select>
+    <button class="btn-gold" onclick="calculatePosition()">TÍNH KHỐI LƯỢNG</button>
    </div>
-
    <div>
-    <div class="metric">
-     <div class="label">SỐ TIỀN RỦI RO</div>
-     <div class="value gold" id="riskMoney">—</div>
-    </div>
-    <div class="metric" style="margin-top:10px">
-     <div class="label">KHOẢNG DỪNG LỖ</div>
-     <div class="value" id="stopDistance">—</div>
-    </div>
-    <div class="metric" style="margin-top:10px">
-     <div class="label">KHỐI LƯỢNG GỢI Ý</div>
-     <div class="value green" id="lotSize">—</div>
-    </div>
-    <div class="metric" style="margin-top:10px">
-     <div class="label">RỦI RO THỰC TẾ ƯỚC TÍNH</div>
-     <div class="value" id="actualRisk">—</div>
-    </div>
-    <div class="metric" style="margin-top:10px">
-     <div class="label">KÝ QUỸ ƯỚC TÍNH</div>
-     <div class="value" id="marginRequired">—</div>
-    </div>
-    <div class="small muted" id="calcMessage" style="margin-top:12px">
-     Nhập giá vào lệnh và dừng lỗ để tính khối lượng.
-    </div>
+    <div class="metric"><div class="label">Số tiền rủi ro</div><div class="value gold" id="riskMoney">—</div></div>
+    <div class="metric" style="margin-top:10px"><div class="label">Khoảng dừng lỗ</div><div class="value" id="stopDistance">—</div></div>
+    <div class="metric" style="margin-top:10px"><div class="label">Khối lượng gợi ý</div><div class="value green" id="lotSize">—</div></div>
+    <div class="metric" style="margin-top:10px"><div class="label">Rủi ro thực tế ước tính</div><div class="value" id="actualRisk">—</div></div>
+    <div class="metric" style="margin-top:10px"><div class="label">Ký quỹ ước tính</div><div class="value" id="marginRequired">—</div></div>
+    <div class="small muted" id="calcMessage" style="margin-top:12px">Nhập giá vào lệnh và dừng lỗ để tính khối lượng.</div>
    </div>
   </div>
  </section>
@@ -463,102 +245,45 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
  <section class="card">
   <h3 class="section-title">KỊCH BẢN GIAO DỊCH</h3>
   <div class="grid grid2">
-   <div class="metric scenario">
+   <div class="metric scenario buy">
     <div class="scenario-title green">KỊCH BẢN BUY</div>
-    <div class="small muted">
-     Chỉ xem xét khi cấu trúc tuần, ngày và H4 phù hợp.
-     Chờ giá xác nhận tại vùng hỗ trợ.
-    </div>
-    <div class="small" style="margin-top:12px;line-height:2">
-     Entry: Chờ xác nhận<br>
-     Stop Loss: 1.5–2 ATR<br>
-     TP1 / TP2: Theo vùng kháng cự<br>
-     Vô hiệu: Cấu trúc tăng bị phá vỡ
-    </div>
+    <div class="small muted">Chỉ xem xét khi cấu trúc tuần, ngày và H4 phù hợp. Chờ giá xác nhận tại vùng hỗ trợ.</div>
+    <div class="small sc-list">Entry: Chờ xác nhận<br>Stop Loss: 1.5–2 ATR<br>TP1 / TP2: Theo vùng kháng cự<br>Vô hiệu: Cấu trúc tăng bị phá vỡ</div>
    </div>
-   <div class="metric scenario">
+   <div class="metric scenario sell">
     <div class="scenario-title red">KỊCH BẢN SELL</div>
-    <div class="small muted">
-     Chỉ xem xét khi cấu trúc tuần, ngày và H4 phù hợp.
-     Chờ giá xác nhận tại vùng kháng cự.
-    </div>
-    <div class="small" style="margin-top:12px;line-height:2">
-     Entry: Chờ xác nhận<br>
-     Stop Loss: 1.5–2 ATR<br>
-     TP1 / TP2: Theo vùng hỗ trợ<br>
-     Vô hiệu: Cấu trúc giảm bị phá vỡ
-    </div>
+    <div class="small muted">Chỉ xem xét khi cấu trúc tuần, ngày và H4 phù hợp. Chờ giá xác nhận tại vùng kháng cự.</div>
+    <div class="small sc-list">Entry: Chờ xác nhận<br>Stop Loss: 1.5–2 ATR<br>TP1 / TP2: Theo vùng hỗ trợ<br>Vô hiệu: Cấu trúc giảm bị phá vỡ</div>
    </div>
   </div>
  </section>
 
 </main>
 
-<footer>
- GOLD PRO · Công cụ phân tích tham khảo · Không phải khuyến nghị đầu tư
-</footer>
+<footer>GOLD PRO · Công cụ phân tích tham khảo · Không phải khuyến nghị đầu tư</footer>
 
 <script>
 "use strict";
-
-// =====================================
-// CẤU HÌNH API
-// =====================================
-
 const SPOT_URL="https://xaus.com/api/v1/spot?compact=1";
 const HISTORY_URL="https://www.algospecial.com/api/ohlc.php";
+const HISTORY_DAYS=180,CHUNK_DAYS=15;
+let allH4=[],allH1=[],allD1=[],allW1=[];
+let currentTimeframe="H4",loadingH4=false,loadingH1=false;
 
-const HISTORY_DAYS=180;
-const CHUNK_DAYS=15;
-
-let allH4=[];
-let allH1=[];
-let allD1=[];
-let allW1=[];
-
-let currentTimeframe="H4";
-let loadingH4=false;
-let loadingH1=false;
-
-// =====================================
-// TIỆN ÍCH
-// =====================================
-
-function $(id){
- return document.getElementById(id);
-}
-
+function $(id){return document.getElementById(id)}
 function dateString(date){
- const y=date.getFullYear();
- const m=String(date.getMonth()+1).padStart(2,"0");
- const d=String(date.getDate()).padStart(2,"0");
- return `${y}-${m}-${d}`;
+ return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
 }
-
 function formatPrice(value){
  if(!Number.isFinite(Number(value)))return "—";
- return Number(value).toLocaleString("en-US",{
-  minimumFractionDigits:2,
-  maximumFractionDigits:2
- });
+ return Number(value).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 }
-
 function formatDate(value){
  const d=value instanceof Date?value:new Date(value);
  if(Number.isNaN(d.getTime()))return "—";
- return d.toLocaleString("vi-VN",{
-  year:"numeric",
-  month:"2-digit",
-  day:"2-digit",
-  hour:"2-digit",
-  minute:"2-digit"
- });
+ return d.toLocaleString("vi-VN",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
 }
-
-function sleep(ms){
- return new Promise(resolve=>setTimeout(resolve,ms));
-}
-
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 function setHistoryMessage(message,type="normal"){
  const el=$("historyStatus");
  el.textContent=message;
@@ -566,944 +291,400 @@ function setHistoryMessage(message,type="normal"){
  if(type==="error")el.classList.add("error");
  if(type==="success")el.classList.add("success");
 }
-
 function parseCandleTime(value){
  if(value instanceof Date)return value;
-
- if(typeof value==="number"){
-  return new Date(value<1e12?value*1000:value);
- }
-
+ if(typeof value==="number")return new Date(value<1e12?value*1000:value);
  if(typeof value==="string"){
-  const normalized=value.replace(
-   /^(\d{4})\.(\d{2})\.(\d{2})/,
-   "$1-$2-$3"
-  );
+  const normalized=value.replace(/^(\d{4})\.(\d{2})\.(\d{2})/,"$1-$2-$3");
   return new Date(normalized.replace(" ","T"));
  }
-
  return new Date(NaN);
 }
 
-// =====================================
-// GIÁ VÀNG XAUS
-// =====================================
-
 function findPrice(data){
  if(typeof data==="number")return data;
-
- if(typeof data==="string"){
-  const n=Number(data);
-  return Number.isFinite(n)?n:null;
- }
-
+ if(typeof data==="string"){const n=Number(data);return Number.isFinite(n)?n:null}
  if(!data||typeof data!=="object")return null;
-
- const keys=[
-  "price","last","lastPrice","spot",
-  "ask","bid","value","rate"
- ];
-
- for(const key of keys){
-  if(data[key]!==undefined){
-   const n=Number(data[key]);
-   if(Number.isFinite(n))return n;
-  }
+ for(const key of ["price","last","lastPrice","spot","ask","bid","value","rate"]){
+  if(data[key]!==undefined){const n=Number(data[key]);if(Number.isFinite(n))return n}
  }
-
  for(const key of ["data","result","quote"]){
-  if(data[key]){
-   const found=findPrice(data[key]);
-   if(found!==null)return found;
-  }
+  if(data[key]){const f=findPrice(data[key]);if(f!==null)return f}
  }
-
  return null;
 }
-
 async function updateGold(){
  try{
   const response=await fetch(SPOT_URL,{cache:"no-store"});
-
-  if(!response.ok){
-   throw new Error("HTTP "+response.status);
-  }
-
-  const data=await response.json();
-  const price=findPrice(data);
-
-  if(price===null){
-   throw new Error("Không nhận diện được giá XAUS");
-  }
-
+  if(!response.ok)throw new Error("HTTP "+response.status);
+  const price=findPrice(await response.json());
+  if(price===null)throw new Error("Không nhận diện được giá XAUS");
   $("goldPrice").textContent=formatPrice(price);
-  $("goldUpdate").textContent=
-   "Nguồn XAUS · Cập nhật: "+
-   new Date().toLocaleString("vi-VN");
-
+  $("goldUpdate").textContent="Nguồn XAUS · Cập nhật: "+new Date().toLocaleString("vi-VN");
  }catch(error){
-  $("goldUpdate").textContent=
-   "Không tải được giá XAUS: "+error.message;
+  $("goldUpdate").textContent="Không tải được giá XAUS: "+error.message;
  }
 }
-
-// =====================================
-// CHUẨN HÓA DỮ LIỆU K-LINE
-// =====================================
 
 function normalizeCandles(payload){
  let rows=[];
-
- if(Array.isArray(payload)){
-  rows=payload;
- }else if(payload&&Array.isArray(payload.data)){
-  rows=payload.data;
- }else if(payload&&Array.isArray(payload.rows)){
-  rows=payload.rows;
- }else{
-  return [];
- }
-
+ if(Array.isArray(payload))rows=payload;
+ else if(payload&&Array.isArray(payload.data))rows=payload.data;
+ else if(payload&&Array.isArray(payload.rows))rows=payload.rows;
+ else return [];
  return rows.map(row=>{
-  const time=parseCandleTime(
-   row.Timestamp??row.timestamp??row.time??row.date
-  );
-
-  const open=Number(row.Open??row.open);
-  const high=Number(row.High??row.high);
-  const low=Number(row.Low??row.low);
-  const close=Number(row.Close??row.close);
-
-  const volume=Number(
-   row.TickVolume??row.tickVolume??row.volume??0
-  );
-
-  if(
-   Number.isNaN(time.getTime())||
-   ![open,high,low,close].every(Number.isFinite)||
-   high<low||
-   high<Math.max(open,close)||
-   low>Math.min(open,close)
-  ){
-   return null;
-  }
-
+  const time=parseCandleTime(row.Timestamp??row.timestamp??row.time??row.date);
+  const open=Number(row.Open??row.open),high=Number(row.High??row.high),
+        low=Number(row.Low??row.low),close=Number(row.Close??row.close);
+  const volume=Number(row.TickVolume??row.tickVolume??row.volume??0);
+  if(Number.isNaN(time.getTime())||![open,high,low,close].every(Number.isFinite)||
+     high<low||high<Math.max(open,close)||low>Math.min(open,close))return null;
   return {time,open,high,low,close,volume};
  }).filter(Boolean);
 }
-
 function uniqueCandles(candles){
  const map=new Map();
-
- for(const candle of candles){
-  map.set(candle.time.getTime(),candle);
- }
-
- return Array.from(map.values()).sort(
-  (a,b)=>a.time-b.time
- );
+ for(const c of candles)map.set(c.time.getTime(),c);
+ return Array.from(map.values()).sort((a,b)=>a.time-b.time);
 }
-
-// =====================================
-// GỌI API LỊCH SỬ
-// =====================================
 
 async function fetchPeriod(from,to,tf){
  const url=new URL(HISTORY_URL);
-
  url.searchParams.set("symbol","XAUUSD");
  url.searchParams.set("tf",tf);
  url.searchParams.set("from",from);
  url.searchParams.set("to",to);
  url.searchParams.set("format","json");
-
- const response=await fetch(url.toString(),{
-  cache:"no-store"
- });
-
+ const response=await fetch(url.toString(),{cache:"no-store"});
  const body=await response.text();
-
- if(!response.ok){
-  throw new Error(
-   "AlgoSpecial HTTP "+response.status+
-   (body?" · "+body.slice(0,150):"")
-  );
- }
-
+ if(!response.ok)throw new Error("AlgoSpecial HTTP "+response.status+(body?" · "+body.slice(0,150):""));
  let payload;
-
- try{
-  payload=JSON.parse(body);
- }catch(error){
-  throw new Error("API trả về dữ liệu không phải JSON");
- }
-
+ try{payload=JSON.parse(body)}catch(e){throw new Error("API trả về dữ liệu không phải JSON")}
  if(payload&&Number(payload.rows)===0)return [];
-
  return normalizeCandles(payload);
 }
 
-// =====================================
-// TẢI DỮ LIỆU THEO TỪNG KHOẢNG
-// =====================================
-
 async function fetchPeriodRange(days,tf,onProgress){
- const end=new Date();
- const start=new Date();
-
+ const end=new Date(),start=new Date();
  start.setDate(start.getDate()-days);
-
- let all=[];
- let errors=[];
- let current=new Date(start);
- let chunkNumber=0;
-
+ let all=[],errors=[],current=new Date(start),chunkNumber=0;
  while(current<=end){
-  const chunkStart=new Date(current);
-  const chunkEnd=new Date(current);
-
+  const chunkStart=new Date(current),chunkEnd=new Date(current);
   chunkEnd.setDate(chunkEnd.getDate()+CHUNK_DAYS-1);
-
-  if(chunkEnd>end){
-   chunkEnd.setTime(end.getTime());
-  }
-
-  const from=dateString(chunkStart);
-  const to=dateString(chunkEnd);
-
+  if(chunkEnd>end)chunkEnd.setTime(end.getTime());
+  const from=dateString(chunkStart),to=dateString(chunkEnd);
   chunkNumber++;
-
-  if(onProgress){
-   onProgress(
-    tf+" · "+from+" → "+to+
-    " · Lần "+chunkNumber
-   );
-  }
-
+  if(onProgress)onProgress(tf+" · "+from+" → "+to+" · Lần "+chunkNumber);
   try{
-   const candles=await fetchPeriod(from,to,tf);
-   all=all.concat(candles);
+   all=all.concat(await fetchPeriod(from,to,tf));
   }catch(error){
    errors.push({from,to,message:error.message});
    console.error(tf,from,to,error);
   }
-
   current=new Date(chunkEnd);
   current.setDate(current.getDate()+1);
-
   await sleep(250);
  }
-
- return {
-  data:uniqueCandles(all),
-  errors
- };
+ return {data:uniqueCandles(all),errors};
 }
-
-// =====================================
-// TẢI H4
-// =====================================
 
 async function loadHistory(){
  if(loadingH4)return;
-
  loadingH4=true;
  setHistoryMessage("Đang tải dữ liệu H4 trong 6 tháng...");
-
  try{
-  const result=await fetchPeriodRange(
-   HISTORY_DAYS,
-   "H4",
-   message=>setHistoryMessage("Đang tải "+message)
-  );
-
-  if(result.data.length<2){
-   throw new Error(
-    "Không tìm thấy đủ dữ liệu H4. Kiểm tra API hoặc khoảng thời gian."
-   );
-  }
-
+  const result=await fetchPeriodRange(HISTORY_DAYS,"H4",m=>setHistoryMessage("Đang tải "+m));
+  if(result.data.length<2)throw new Error("Không tìm thấy đủ dữ liệu H4. Kiểm tra API hoặc khoảng thời gian.");
   allH4=result.data;
-
   buildHigherTimeframes();
-
   setHistoryMessage(
-   "H4: "+allH4.length+
-   " nến · "+formatDate(allH4[0].time)+
-   " đến "+formatDate(allH4[allH4.length-1].time)+
-   (result.errors.length
-    ?" · Có "+result.errors.length+" khoảng bị lỗi"
-    :" · Tải hoàn tất"),
-   result.errors.length?"normal":"success"
-  );
-
+   "H4: "+allH4.length+" nến · "+formatDate(allH4[0].time)+" đến "+formatDate(allH4[allH4.length-1].time)+
+   (result.errors.length?" · Có "+result.errors.length+" khoảng bị lỗi":" · Tải hoàn tất"),
+   result.errors.length?"normal":"success");
   renderTimeframe();
-
  }catch(error){
-  setHistoryMessage(
-   "Không tải được H4: "+error.message,
-   "error"
-  );
-
+  setHistoryMessage("Không tải được H4: "+error.message,"error");
   renderTimeframe();
-
- }finally{
-  loadingH4=false;
- }
+ }finally{loadingH4=false}
 }
-
-// =====================================
-// TẢI H1
-// =====================================
 
 async function loadH1(){
  if(loadingH1)return;
-
  loadingH1=true;
  setHistoryMessage("Đang tải dữ liệu H1 trong 6 tháng...");
-
  try{
-  const result=await fetchPeriodRange(
-   HISTORY_DAYS,
-   "H1",
-   message=>setHistoryMessage("Đang tải "+message)
-  );
-
-  if(result.data.length<2){
-   throw new Error("Không tìm thấy đủ dữ liệu H1");
-  }
-
+  const result=await fetchPeriodRange(HISTORY_DAYS,"H1",m=>setHistoryMessage("Đang tải "+m));
+  if(result.data.length<2)throw new Error("Không tìm thấy đủ dữ liệu H1");
   allH1=result.data;
-
   setHistoryMessage(
-   "H1: "+allH1.length+
-   " nến · "+formatDate(allH1[0].time)+
-   " đến "+formatDate(allH1[allH1.length-1].time)+
-   (result.errors.length
-    ?" · Có "+result.errors.length+" khoảng bị lỗi"
-    :" · Tải hoàn tất"),
-   result.errors.length?"normal":"success"
-  );
-
+   "H1: "+allH1.length+" nến · "+formatDate(allH1[0].time)+" đến "+formatDate(allH1[allH1.length-1].time)+
+   (result.errors.length?" · Có "+result.errors.length+" khoảng bị lỗi":" · Tải hoàn tất"),
+   result.errors.length?"normal":"success");
   if(currentTimeframe==="H1")renderTimeframe();
-
  }catch(error){
-  setHistoryMessage(
-   "Không tải được H1: "+error.message,
-   "error"
-  );
-
- }finally{
-  loadingH1=false;
- }
+  setHistoryMessage("Không tải được H1: "+error.message,"error");
+ }finally{loadingH1=false}
 }
-
-// =====================================
-// GỘP DỮ LIỆU H4 THÀNH D1 / W1
-// =====================================
 
 function aggregateCandles(candles,type){
  const groups=new Map();
-
  for(const candle of candles){
   const d=candle.time;
   let key;
-
   if(type==="D1"){
-   key=[
-    d.getFullYear(),
-    d.getMonth(),
-    d.getDate()
-   ].join("-");
+   key=[d.getFullYear(),d.getMonth(),d.getDate()].join("-");
   }else{
    const day=new Date(d);
-   const weekday=(day.getDay()+6)%7;
-   day.setDate(day.getDate()-weekday);
-
-   key=[
-    day.getFullYear(),
-    day.getMonth(),
-    day.getDate()
-   ].join("-");
+   day.setDate(day.getDate()-((day.getDay()+6)%7));
+   key=[day.getFullYear(),day.getMonth(),day.getDate()].join("-");
   }
-
   if(!groups.has(key)){
-   groups.set(key,{
-    time:new Date(candle.time),
-    open:candle.open,
-    high:candle.high,
-    low:candle.low,
-    close:candle.close,
-    volume:candle.volume
-   });
+   groups.set(key,{time:new Date(candle.time),open:candle.open,high:candle.high,low:candle.low,close:candle.close,volume:candle.volume});
   }else{
-   const group=groups.get(key);
-   group.high=Math.max(group.high,candle.high);
-   group.low=Math.min(group.low,candle.low);
-   group.close=candle.close;
-   group.volume+=candle.volume;
+   const g=groups.get(key);
+   g.high=Math.max(g.high,candle.high);
+   g.low=Math.min(g.low,candle.low);
+   g.close=candle.close;
+   g.volume+=candle.volume;
   }
  }
-
- return Array.from(groups.values()).sort(
-  (a,b)=>a.time-b.time
- );
+ return Array.from(groups.values()).sort((a,b)=>a.time-b.time);
 }
-
 function buildHigherTimeframes(){
  allD1=aggregateCandles(allH4,"D1");
  allW1=aggregateCandles(allH4,"W1");
 }
 
-// =====================================
-// CHỈ BÁO MA / RSI / ATR
-// =====================================
-
 function sma(candles,period){
  const result=Array(candles.length).fill(null);
-
  for(let i=period-1;i<candles.length;i++){
   let sum=0;
-
-  for(let j=i-period+1;j<=i;j++){
-   sum+=candles[j].close;
-  }
-
+  for(let j=i-period+1;j<=i;j++)sum+=candles[j].close;
   result[i]=sum/period;
  }
-
  return result;
 }
-
 function rsi(candles,period=14){
  const result=Array(candles.length).fill(null);
-
  if(candles.length<=period)return result;
-
- let gain=0;
- let loss=0;
-
+ let gain=0,loss=0;
  for(let i=1;i<=period;i++){
-  const change=candles[i].close-candles[i-1].close;
-
-  if(change>0)gain+=change;
-  else loss-=change;
+  const ch=candles[i].close-candles[i-1].close;
+  if(ch>0)gain+=ch;else loss-=ch;
  }
-
- let avgGain=gain/period;
- let avgLoss=loss/period;
-
- result[period]=avgLoss===0
-  ?100
-  :100-(100/(1+avgGain/avgLoss));
-
+ let avgGain=gain/period,avgLoss=loss/period;
+ result[period]=avgLoss===0?100:100-(100/(1+avgGain/avgLoss));
  for(let i=period+1;i<candles.length;i++){
-  const change=candles[i].close-candles[i-1].close;
-
-  const currentGain=Math.max(change,0);
-  const currentLoss=Math.max(-change,0);
-
-  avgGain=(avgGain*(period-1)+currentGain)/period;
-  avgLoss=(avgLoss*(period-1)+currentLoss)/period;
-
-  result[i]=avgLoss===0
-   ?100
-   :100-(100/(1+avgGain/avgLoss));
+  const ch=candles[i].close-candles[i-1].close;
+  avgGain=(avgGain*(period-1)+Math.max(ch,0))/period;
+  avgLoss=(avgLoss*(period-1)+Math.max(-ch,0))/period;
+  result[i]=avgLoss===0?100:100-(100/(1+avgGain/avgLoss));
  }
-
  return result;
 }
-
 function atr(candles,period=14){
  const result=Array(candles.length).fill(null);
-
  if(candles.length<=period)return result;
-
  const tr=[];
-
  for(let i=0;i<candles.length;i++){
   const c=candles[i];
-
-  if(i===0){
-   tr.push(c.high-c.low);
-  }else{
-   const previous=candles[i-1].close;
-
-   tr.push(Math.max(
-    c.high-c.low,
-    Math.abs(c.high-previous),
-    Math.abs(c.low-previous)
-   ));
+  if(i===0)tr.push(c.high-c.low);
+  else{
+   const p=candles[i-1].close;
+   tr.push(Math.max(c.high-c.low,Math.abs(c.high-p),Math.abs(c.low-p)));
   }
  }
-
- let current=0;
-
- for(let i=1;i<=period;i++)current+=tr[i];
-
- current/=period;
- result[period]=current;
-
+ let cur=0;
+ for(let i=1;i<=period;i++)cur+=tr[i];
+ cur/=period;
+ result[period]=cur;
  for(let i=period+1;i<candles.length;i++){
-  current=(current*(period-1)+tr[i])/period;
-  result[i]=current;
+  cur=(cur*(period-1)+tr[i])/period;
+  result[i]=cur;
  }
-
  return result;
 }
-
-// =====================================
-// XU HƯỚNG
-// =====================================
 
 function trendFromCandles(candles){
  if(candles.length<50)return "Chưa đủ dữ liệu";
-
- const ma20=sma(candles,20);
- const ma50=sma(candles,50);
-
- const last=candles.length-1;
- const close=candles[last].close;
-
- if(ma20[last]===null||ma50[last]===null){
-  return "Chưa đủ dữ liệu";
- }
-
- if(close>ma20[last]&&ma20[last]>ma50[last]){
-  return "Tăng";
- }
-
- if(close<ma20[last]&&ma20[last]<ma50[last]){
-  return "Giảm";
- }
-
+ const ma20=sma(candles,20),ma50=sma(candles,50);
+ const last=candles.length-1,close=candles[last].close;
+ if(ma20[last]===null||ma50[last]===null)return "Chưa đủ dữ liệu";
+ if(close>ma20[last]&&ma20[last]>ma50[last])return "Tăng";
+ if(close<ma20[last]&&ma20[last]<ma50[last])return "Giảm";
  return "Đi ngang";
 }
-
 function getSupportResistance(candles){
- if(candles.length<10){
-  return {support:null,resistance:null};
- }
-
+ if(candles.length<10)return {support:null,resistance:null};
  const recent=candles.slice(-30);
-
- return {
-  support:Math.min(...recent.map(c=>c.low)),
-  resistance:Math.max(...recent.map(c=>c.high))
- };
+ return {support:Math.min(...recent.map(c=>c.low)),resistance:Math.max(...recent.map(c=>c.high))};
 }
-
-// =====================================
-// KIỂM TRA DỮ LIỆU MỚI HAY CŨ
-// =====================================
-
 function isRecentData(candles,timeframe){
  if(!candles.length)return false;
-
- const last=candles[candles.length-1].time;
- const age=(Date.now()-last.getTime())/3600000;
-
- const limits={
-  H1:8,
-  H4:36,
-  D1:72,
-  W1:240
- };
-
+ const age=(Date.now()-candles[candles.length-1].time.getTime())/3600000;
+ const limits={H1:8,H4:36,D1:72,W1:240};
  return age>=-1&&age<=limits[timeframe];
 }
 
-// =====================================
-// VẼ BIỂU ĐỒ K-LINE
-// =====================================
-
 function drawChart(candles){
  const svg=$("candleChart");
-
  if(candles.length<2){
-  svg.innerHTML=
-   '<text x="500" y="190" text-anchor="middle" fill="#858b91">Không đủ dữ liệu để vẽ biểu đồ</text>';
+  svg.innerHTML='<text x="500" y="190" text-anchor="middle" fill="#8a9097">Không đủ dữ liệu để vẽ biểu đồ</text>';
   return;
  }
-
- // Tính MA trên toàn bộ dữ liệu, không chỉ 80 nến cuối.
- const ma20All=sma(candles,20);
- const ma50All=sma(candles,50);
- const ma200All=sma(candles,200);
-
+ const ma20All=sma(candles,20),ma50All=sma(candles,50),ma200All=sma(candles,200);
  const startIndex=Math.max(0,candles.length-80);
  const visible=candles.slice(startIndex);
-
- const width=1000;
- const height=390;
- const left=18;
- const right=78;
- const top=22;
- const bottom=42;
-
- const plotW=width-left-right;
- const plotH=height-top-bottom;
-
+ const width=1000,height=390,left=18,right=78,top=22,bottom=42;
+ const plotW=width-left-right,plotH=height-top-bottom;
  const maxPrice=Math.max(...visible.map(c=>c.high));
  const minPrice=Math.min(...visible.map(c=>c.low));
  const range=maxPrice-minPrice||1;
-
- const y=price=>top+(maxPrice-price)/range*plotH;
+ const y=p=>top+(maxPrice-p)/range*plotH;
  const x=i=>left+(i+.5)*plotW/visible.length;
-
- const candleWidth=Math.max(
-  3,
-  Math.min(10,plotW/visible.length*.58)
- );
-
+ const cw=Math.max(3,Math.min(10,plotW/visible.length*.58));
  let html="";
-
- // Lưới giá
  for(let i=0;i<5;i++){
-  const gy=top+i*plotH/4;
-  const price=maxPrice-i*range/4;
-
-  html+=`
-   <line x1="${left}" y1="${gy}" x2="${width-right}" y2="${gy}"
-    stroke="#eee9df" stroke-width="1"/>
-   <text x="${width-right+6}" y="${gy+4}"
-    fill="#858b91" font-size="11">${formatPrice(price)}</text>
-  `;
+  const gy=top+i*plotH/4,price=maxPrice-i*range/4;
+  html+=`<line x1="${left}" y1="${gy}" x2="${width-right}" y2="${gy}" stroke="#eee8d9" stroke-width="1" stroke-dasharray="4 5"/>
+  <text x="${width-right+8}" y="${gy+4}" fill="#8a9097" font-size="11">${formatPrice(price)}</text>`;
  }
-
- // Nến
  visible.forEach((c,i)=>{
-  const bullish=c.close>=c.open;
-  const color=bullish?"#16865d":"#d34c4c";
-
-  const cx=x(i);
-  const yo=y(c.open);
-  const yc=y(c.close);
-
-  const bodyY=Math.min(yo,yc);
-  const bodyH=Math.max(1,Math.abs(yc-yo));
-
-  html+=`
-   <line x1="${cx}" y1="${y(c.high)}"
-    x2="${cx}" y2="${y(c.low)}"
-    stroke="${color}" stroke-width="1.5"/>
-   <rect x="${cx-candleWidth/2}" y="${bodyY}"
-    width="${candleWidth}" height="${bodyH}"
-    rx="1" fill="${color}"/>
-  `;
+  const color=c.close>=c.open?"#0f9d6b":"#e04b4b";
+  const cx=x(i),yo=y(c.open),yc=y(c.close);
+  html+=`<line x1="${cx}" y1="${y(c.high)}" x2="${cx}" y2="${y(c.low)}" stroke="${color}" stroke-width="1.5"/>
+  <rect x="${cx-cw/2}" y="${Math.min(yo,yc)}" width="${cw}" height="${Math.max(1,Math.abs(yc-yo))}" rx="1.5" fill="${color}"/>`;
  });
-
- // Đường MA: lấy đúng chỉ số từ toàn bộ dữ liệu
  function makeLine(values,color){
-  const points=[];
-
+  const pts=[];
   for(let i=startIndex;i<candles.length;i++){
-   const value=values[i];
-
-   if(value!==null){
-    points.push(`${x(i-startIndex)},${y(value)}`);
-   }
+   if(values[i]!==null)pts.push(`${x(i-startIndex)},${y(values[i])}`);
   }
-
-  if(points.length<2)return "";
-
-  return `
-   <polyline points="${points.join(" ")}"
-    fill="none" stroke="${color}" stroke-width="2"
-    stroke-linejoin="round" stroke-linecap="round"/>
-  `;
+  if(pts.length<2)return "";
+  return `<polyline points="${pts.join(" ")}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
  }
-
- html+=makeLine(ma20All,"#bd8b25");
- html+=makeLine(ma50All,"#477fb7");
- html+=makeLine(ma200All,"#9870b7");
-
- html+=`
-  <text x="${left}" y="${height-10}" fill="#858b91" font-size="11">
-   ${formatDate(visible[0].time)}
-  </text>
-  <text x="${width-right}" y="${height-10}"
-   text-anchor="end" fill="#858b91" font-size="11">
-   ${formatDate(visible[visible.length-1].time)}
-  </text>
- `;
-
+ html+=makeLine(ma20All,"#b8861b")+makeLine(ma50All,"#3b82c4")+makeLine(ma200All,"#8e63c0");
+ const lastC=visible[visible.length-1],ly=y(lastC.close);
+ html+=`<line x1="${left}" y1="${ly}" x2="${width-right}" y2="${ly}" stroke="#b8861b" stroke-width="1" stroke-dasharray="2 4" opacity=".7"/>
+ <rect x="${width-right+2}" y="${ly-10}" width="72" height="20" rx="5" fill="#b8861b"/>
+ <text x="${width-right+38}" y="${ly+4}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">${formatPrice(lastC.close)}</text>
+ <text x="${left}" y="${height-10}" fill="#8a9097" font-size="11">${formatDate(visible[0].time)}</text>
+ <text x="${width-right}" y="${height-10}" text-anchor="end" fill="#8a9097" font-size="11">${formatDate(lastC.time)}</text>`;
  svg.innerHTML=html;
 }
 
-// =====================================
-// CHỌN KHUNG THỜI GIAN
-// =====================================
-
 function selectTimeframe(tf){
  currentTimeframe=tf;
-
- document.querySelectorAll("[data-tf]").forEach(button=>{
-  button.classList.toggle(
-   "active",
-   button.dataset.tf===tf
-  );
- });
-
+ document.querySelectorAll("[data-tf]").forEach(b=>b.classList.toggle("active",b.dataset.tf===tf));
  renderTimeframe();
 }
-
 function getCurrentCandles(){
- if(currentTimeframe==="H4")return allH4;
- if(currentTimeframe==="H1")return allH1;
- if(currentTimeframe==="D1")return allD1;
- if(currentTimeframe==="W1")return allW1;
-
- return [];
+ return {H4:allH4,H1:allH1,D1:allD1,W1:allW1}[currentTimeframe]||[];
 }
-
-// =====================================
-// HIỂN THỊ PHÂN TÍCH
-// =====================================
 
 function renderTimeframe(){
  const candles=getCurrentCandles();
-
  if(candles.length<2){
-  $("chartInfo").textContent=
-   currentTimeframe+" · Chưa có đủ dữ liệu";
-
+  $("chartInfo").textContent=currentTimeframe+" · Chưa có đủ dữ liệu";
   $("candleCount").textContent=candles.length;
   $("lastCandleTime").textContent="—";
   $("indicatorStatus").textContent="Thiếu dữ liệu";
-
-  $("ma20Value").textContent="—";
-  $("ma50Value").textContent="—";
-  $("ma200Value").textContent="—";
-  $("rsiValue").textContent="—";
-  $("atrValue").textContent="—";
-
+  ["ma20Value","ma50Value","ma200Value","rsiValue","atrValue"].forEach(id=>$(id).textContent="—");
   $("mainSignal").textContent="WAIT";
-  $("signalReason").textContent=
-   "Chưa có đủ dữ liệu lịch sử hợp lệ.";
-
+  $("signalReason").textContent="Chưa có đủ dữ liệu lịch sử hợp lệ.";
   drawChart([]);
   updateChecklist();
   return;
  }
-
  const last=candles.length-1;
-
- const ma20=sma(candles,20);
- const ma50=sma(candles,50);
- const ma200=sma(candles,200);
- const rsiValues=rsi(candles,14);
- const atrValues=atr(candles,14);
-
- $("chartInfo").textContent=
-  currentTimeframe+" · "+candles.length+
-  " nến · "+formatDate(candles[0].time)+
-  " đến "+formatDate(candles[last].time);
-
+ const ma20=sma(candles,20),ma50=sma(candles,50),ma200=sma(candles,200);
+ const rsiValues=rsi(candles,14),atrValues=atr(candles,14);
+ $("chartInfo").textContent=currentTimeframe+" · "+candles.length+" nến · "+formatDate(candles[0].time)+" đến "+formatDate(candles[last].time);
  $("candleCount").textContent=candles.length;
- $("lastCandleTime").textContent=
-  formatDate(candles[last].time);
-
- $("ma20Value").textContent=
-  ma20[last]===null?"Chưa đủ dữ liệu":formatPrice(ma20[last]);
-
- $("ma50Value").textContent=
-  ma50[last]===null?"Chưa đủ dữ liệu":formatPrice(ma50[last]);
-
- $("ma200Value").textContent=
-  ma200[last]===null?"Chưa đủ dữ liệu":formatPrice(ma200[last]);
-
- $("rsiValue").textContent=
-  rsiValues[last]===null
-   ?"Chưa đủ dữ liệu"
-   :rsiValues[last].toFixed(2);
-
- $("atrValue").textContent=
-  atrValues[last]===null
-   ?"Chưa đủ dữ liệu"
-   :formatPrice(atrValues[last]);
-
- const levels=getSupportResistance(
-  currentTimeframe==="H4"?candles:allH4
- );
-
- $("supportValue").textContent=
-  levels.support===null?"—":formatPrice(levels.support);
-
- $("resistanceValue").textContent=
-  levels.resistance===null?"—":formatPrice(levels.resistance);
-
+ $("lastCandleTime").textContent=formatDate(candles[last].time);
+ $("ma20Value").textContent=ma20[last]===null?"Chưa đủ dữ liệu":formatPrice(ma20[last]);
+ $("ma50Value").textContent=ma50[last]===null?"Chưa đủ dữ liệu":formatPrice(ma50[last]);
+ $("ma200Value").textContent=ma200[last]===null?"Chưa đủ dữ liệu":formatPrice(ma200[last]);
+ $("rsiValue").textContent=rsiValues[last]===null?"Chưa đủ dữ liệu":rsiValues[last].toFixed(2);
+ $("atrValue").textContent=atrValues[last]===null?"Chưa đủ dữ liệu":formatPrice(atrValues[last]);
+ const levels=getSupportResistance(currentTimeframe==="H4"?candles:allH4);
+ $("supportValue").textContent=levels.support===null?"—":formatPrice(levels.support);
+ $("resistanceValue").textContent=levels.resistance===null?"—":formatPrice(levels.resistance);
  const fresh=isRecentData(candles,currentTimeframe);
-
- $("indicatorStatus").textContent=
-  fresh?"Dữ liệu gần đây":"Dữ liệu cũ";
-
- $("indicatorStatus").className=
-  "value "+(fresh?"green":"red");
-
+ $("indicatorStatus").textContent=fresh?"Dữ liệu gần đây":"Dữ liệu cũ";
+ $("indicatorStatus").className="value "+(fresh?"green":"red");
  drawChart(candles);
-
  $("mainSignal").textContent="WAIT";
-
- $("signalReason").textContent=
-  !fresh
-   ?"Dữ liệu "+currentTimeframe+" đã cũ. Chờ dữ liệu mới."
-   :"Chưa có xác nhận DXY, lợi suất trái phiếu Mỹ và lịch kinh tế. Chưa xác nhận lệnh.";
-
+ $("signalReason").textContent=!fresh
+  ?"Dữ liệu "+currentTimeframe+" đã cũ. Chờ dữ liệu mới."
+  :"Chưa có xác nhận DXY, lợi suất trái phiếu Mỹ và lịch kinh tế. Chưa xác nhận lệnh.";
  updateChecklist();
 }
 
-// =====================================
-// CHECKLIST
-// =====================================
-
 function updateChecklist(){
- const weekly=trendFromCandles(allW1);
- const daily=trendFromCandles(allD1);
- const h4=trendFromCandles(allH4);
-
+ const weekly=trendFromCandles(allW1),daily=trendFromCandles(allD1),h4=trendFromCandles(allH4);
  $("weeklyTrend").textContent=weekly;
  $("dailyTrend").textContent=daily;
-
  $("checkWeekly").textContent="W1 · "+weekly;
  $("checkDaily").textContent="D1 · "+daily;
  $("checkH4").textContent="H4 · "+h4;
-
- const candles=getCurrentCandles();
-
- $("checkMA").textContent=
-  candles.length>=200
-   ?"MA20 / MA50 / MA200 · Đủ dữ liệu"
-   :"MA200 · Chưa đủ 200 nến";
-
- $("checkRSI").textContent=
-  candles.length>=15
-   ?"RSI14 · Có dữ liệu tính toán"
-   :"RSI14 · Chưa đủ dữ liệu";
-
- $("checkATR").textContent=
-  candles.length>=15
-   ?"ATR14 · Có dữ liệu tính toán"
-   :"ATR14 · Chưa đủ dữ liệu";
-
- $("checkMacro").textContent=
-  "DXY / Lợi suất Mỹ / Lịch kinh tế · Chưa kết nối";
+ const n=getCurrentCandles().length;
+ $("checkMA").textContent=n>=200?"MA20 / MA50 / MA200 · Đủ dữ liệu":"MA200 · Chưa đủ 200 nến";
+ $("checkRSI").textContent=n>=15?"RSI14 · Có dữ liệu tính toán":"RSI14 · Chưa đủ dữ liệu";
+ $("checkATR").textContent=n>=15?"ATR14 · Có dữ liệu tính toán":"ATR14 · Chưa đủ dữ liệu";
+ $("checkMacro").textContent="DXY / Lợi suất Mỹ / Lịch kinh tế · Chưa kết nối";
 }
-
-// =====================================
-// TÍNH KHỐI LƯỢNG VÀ QUẢN LÝ RỦI RO
-// =====================================
 
 function calculatePosition(){
- const balance=Number($("balance").value);
- const riskPercent=Number($("riskPercent").value);
- const entry=Number($("entryPrice").value);
- const stop=Number($("stopPrice").value);
- const contractSize=Number($("contractSize").value);
- const leverage=Number($("leverage").value);
- const direction=$("tradeDirection").value;
-
- if(
-  !Number.isFinite(balance)||
-  !Number.isFinite(riskPercent)||
-  !Number.isFinite(entry)||
-  !Number.isFinite(stop)||
-  !Number.isFinite(contractSize)||
-  !Number.isFinite(leverage)||
-  balance<=0||
-  riskPercent<=0||
-  riskPercent>1||
-  entry<=0||
-  stop<=0||
-  contractSize<=0||
-  leverage<1||
-  leverage>10
- ){
-  $("calcMessage").textContent=
-   "Dữ liệu không hợp lệ. Rủi ro tối đa 1%, đòn bẩy tối đa 10x.";
+ const balance=Number($("balance").value),riskPercent=Number($("riskPercent").value),
+  entry=Number($("entryPrice").value),stop=Number($("stopPrice").value),
+  contractSize=Number($("contractSize").value),leverage=Number($("leverage").value),
+  direction=$("tradeDirection").value;
+ if(![balance,riskPercent,entry,stop,contractSize,leverage].every(Number.isFinite)||
+    balance<=0||riskPercent<=0||riskPercent>1||entry<=0||stop<=0||contractSize<=0||leverage<1||leverage>10){
+  $("calcMessage").textContent="Dữ liệu không hợp lệ. Rủi ro tối đa 1%, đòn bẩy tối đa 10x.";
   return;
  }
-
- if(
-  (direction==="BUY"&&stop>=entry)||
-  (direction==="SELL"&&stop<=entry)
- ){
-  $("calcMessage").textContent=
-   "Stop Loss không đúng hướng giao dịch.";
+ if((direction==="BUY"&&stop>=entry)||(direction==="SELL"&&stop<=entry)){
+  $("calcMessage").textContent="Stop Loss không đúng hướng giao dịch.";
   return;
  }
-
  const distance=Math.abs(entry-stop);
  const riskMoney=balance*riskPercent/100;
-
  const rawLot=riskMoney/(distance*contractSize);
-
- // Giới hạn khối lượng theo đòn bẩy và số dư
  const maxLot=balance*leverage/(entry*contractSize);
-
  const lot=Math.floor(Math.min(rawLot,maxLot)*100)/100;
-
  if(lot<0.01){
-  $("calcMessage").textContent=
-   "Khối lượng nhỏ hơn 0.01 lot. Không nên tăng rủi ro để ép vào lệnh.";
+  $("calcMessage").textContent="Khối lượng nhỏ hơn 0.01 lot. Không nên tăng rủi ro để ép vào lệnh.";
   return;
  }
-
- const actualRisk=lot*distance*contractSize;
- const margin=lot*entry*contractSize/leverage;
-
- $("riskMoney").textContent=
-  riskMoney.toFixed(2)+" USD";
-
- $("stopDistance").textContent=
-  formatPrice(distance)+" USD";
-
- $("lotSize").textContent=
-  lot.toFixed(2)+" lot";
-
- $("actualRisk").textContent=
-  actualRisk.toFixed(2)+" USD";
-
- $("marginRequired").textContent=
-  margin.toFixed(2)+" USD";
-
- $("calcMessage").textContent=
-  lot<rawLot
-   ?"Khối lượng đã được giới hạn theo đòn bẩy và số dư. Kiểm tra thêm phí, spread và quy cách hợp đồng của nhà môi giới."
-   :"Khối lượng ước tính theo mức rủi ro đã chọn. Kiểm tra phí, spread và quy cách hợp đồng của nhà môi giới.";
+ $("riskMoney").textContent=riskMoney.toFixed(2)+" USD";
+ $("stopDistance").textContent=formatPrice(distance)+" USD";
+ $("lotSize").textContent=lot.toFixed(2)+" lot";
+ $("actualRisk").textContent=(lot*distance*contractSize).toFixed(2)+" USD";
+ $("marginRequired").textContent=(lot*entry*contractSize/leverage).toFixed(2)+" USD";
+ $("calcMessage").textContent=lot<rawLot
+  ?"Khối lượng đã được giới hạn theo đòn bẩy và số dư. Kiểm tra thêm phí, spread và quy cách hợp đồng của nhà môi giới."
+  :"Khối lượng ước tính theo mức rủi ro đã chọn. Kiểm tra phí, spread và quy cách hợp đồng của nhà môi giới.";
 }
-
-// =====================================
-// LÀM MỚI TẤT CẢ
-// =====================================
 
 async function refreshAll(){
  const button=$("refreshButton");
  button.disabled=true;
  button.textContent="Đang tải...";
-
  try{
   await updateGold();
   await loadHistory();
   await loadH1();
  }finally{
   button.disabled=false;
-  button.textContent="↻ Làm mới dữ liệu";
+  button.textContent="↻ Làm mới";
  }
 }
 
-// =====================================
-// KHỞI ĐỘNG
-// =====================================
-
 updateGold();
-
 setInterval(updateGold,60000);
-
-loadHistory().then(()=>{
- loadH1();
-});
-
+loadHistory().then(()=>loadH1());
 </script>
 </body>
 </html>
