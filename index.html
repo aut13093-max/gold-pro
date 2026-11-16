@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GOLD PRO - Phân tích vàng thông minh</title>
+<style>
+:root{--bg:#f6f3ec;--bg2:#ffffff;--card:#ffffff;--card2:#faf7f0;--line:#e4dcc9;--gold:#a87a14;--gold2:#c99a2e;--text:#1c1a14;--muted:#6f6a5c;--green:#16845f;--red:#c2410c;--glow:rgba(201,154,46,.18);color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#080c12;--bg2:#0b1119;--card:#111a25;--card2:#0c141d;--line:#223142;--gold:#e7bd65;--gold2:#f5d58a;--text:#f2f4f7;--muted:#8a98a8;--green:#42c89a;--red:#f0866a;--glow:rgba(231,189,101,.14);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#080c12;--bg2:#0b1119;--card:#111a25;--card2:#0c141d;--line:#223142;--gold:#e7bd65;--gold2:#f5d58a;--text:#f2f4f7;--muted:#8a98a8;--green:#42c89a;--red:#f0866a;--glow:rgba(231,189,101,.14);color-scheme:dark}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(900px 400px at 85% -5%,var(--glow),transparent 60%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg2);z-index:20}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:19;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 5%;background:color-mix(in srgb,var(--bg2) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.logo{font-weight:800;letter-spacing:3px;font-size:20px;display:flex;align-items:center;gap:9px}
+.logo i{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--gold2),var(--gold));display:inline-block;box-shadow:0 0 18px var(--glow)}
+.logo span{color:var(--gold)}
+.by{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:2px 8px;margin-left:4px;text-transform:none}
+.right{display:flex;gap:8px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:11px;color:var(--muted);background:var(--card)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:p 2s infinite}
+@keyframes p{50%{opacity:.25}}
+button{font:inherit;cursor:pointer;color:inherit}
+.ic{border:1px solid var(--line);background:var(--card);border-radius:99px;width:34px;height:34px}
+main{max-width:1200px;margin:auto;padding:34px 18px 20px}
+.label{color:var(--gold);letter-spacing:3px;font-size:11px;font-weight:700}
+h1{font-size:clamp(28px,5vw,44px);margin:10px 0;line-height:1.15;letter-spacing:-.5px}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);max-width:640px;margin:0 0 26px}
+.grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+.card{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 10px 30px -18px rgba(0,0,0,.45)}
+.ct{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;letter-spacing:1px;margin-bottom:14px}
+.small{color:var(--muted);font-size:11px;font-weight:400;letter-spacing:0}
+.price{font-size:clamp(32px,6vw,44px);font-weight:800;margin:4px 0;letter-spacing:2px;color:var(--gold)}
+.tabs{display:flex;gap:6px;margin:14px 0 10px;overflow-x:auto}
