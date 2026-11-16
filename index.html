@@ -88,6 +88,13 @@ input:focus,select:focus{border-color:var(--gold2);box-shadow:0 0 0 4px rgba(226
 .scenario.sell{border-top:3px solid var(--red)}
 .scenario-title{font-weight:900;margin-bottom:10px;font-size:13px;letter-spacing:.5px}
 .sc-list{margin-top:12px;line-height:2}
+.trap{padding:12px 4px;border-bottom:1px dashed #eee8da}
+.trap:last-of-type{border-bottom:0}
+.trap-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px;font-size:13px}
+.badge{flex:none;font-size:11px;font-weight:800;padding:3px 10px;border-radius:99px;background:#eef0f2;color:#8a9097}
+.badge.warn{background:#fdeded;color:var(--red)}
+.badge.bear{background:#e8f8f0;color:var(--green)}
+.badge.sweep{background:var(--gold-light);color:var(--gold)}
 footer{padding:26px 15px calc(26px + env(safe-area-inset-bottom,0px));text-align:center;color:var(--muted);font-size:11px}
 hr{border:0;border-top:1px solid var(--border);margin:14px 0}
 @media(max-width:800px){
@@ -198,6 +205,18 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
    <div class="metric"><div class="label">Nến cuối cùng</div><div class="value" id="lastCandleTime">—</div></div>
    <div class="metric"><div class="label">Trạng thái dữ liệu</div><div class="value" id="indicatorStatus">Chưa tải</div></div>
   </div>
+ </section>
+
+ <section class="card">
+  <h3 class="section-title">NHẬN DIỆN BẪY GIAO DỊCH</h3>
+  <div class="small muted" id="trapNote" style="margin-bottom:8px">Đang chờ dữ liệu...</div>
+  <div class="trap"><div class="trap-head"><b>Phá vỡ giả (Fake breakout)</b><span class="badge" id="trapFakeB">—</span></div><div class="small muted" id="trapFakeT">—</div></div>
+  <div class="trap"><div class="trap-head"><b>Bẫy tăng · Dụ mua (Bull trap)</b><span class="badge" id="trapBullB">—</span></div><div class="small muted" id="trapBullT">—</div></div>
+  <div class="trap"><div class="trap-head"><b>Bẫy giảm · Dụ bán (Bear trap)</b><span class="badge" id="trapBearB">—</span></div><div class="small muted" id="trapBearT">—</div></div>
+  <div class="trap"><div class="trap-head"><b>Quét thanh khoản (Liquidity sweep)</b><span class="badge" id="trapSweepB">—</span></div><div class="small muted" id="trapSweepT">—</div></div>
+  <div class="trap"><div class="trap-head"><b>Thủng hỗ trợ rồi thu hồi nhanh</b><span class="badge" id="trapSupB">—</span></div><div class="small muted" id="trapSupT">—</div></div>
+  <div class="trap"><div class="trap-head"><b>Vượt kháng cự rồi rơi lại nhanh</b><span class="badge" id="trapResB">—</span></div><div class="small muted" id="trapResT">—</div></div>
+  <div class="status" style="margin-top:13px">Kiểm tra trong 6 nến gần nhất của khung đang chọn, dựa trên đỉnh/đáy swing và ATR14. Đây là cảnh báo rủi ro, không phải tín hiệu vào lệnh; các mục có thể trùng nhau vì cùng mô tả một cú đảo chiều.</div>
  </section>
 
  <section class="card">
@@ -627,7 +646,132 @@ function isRecentData(candles,timeframe){
  return age>=-1&&age<=limit;
 }
 
-function drawChart(candles){
+function findSwings(c,k){
+ const highs=[],lows=[];
+ for(let i=k;i<c.length-k;i++){
+  let h=true,l=true;
+  for(let j=1;j<=k;j++){
+   if(c[i].high<=c[i-j].high||c[i].high<=c[i+j].high)h=false;
+   if(c[i].low>=c[i-j].low||c[i].low>=c[i+j].low)l=false;
+  }
+  if(h)highs.push({i,p:c[i].high});
+  if(l)lows.push({i,p:c[i].low});
+ }
+ return {highs,lows};
+}
+
+function latestEvent(list){
+ let best=null;
+ for(const e of list)if(e&&(!best||e.t>best.t))best=e;
+ return best;
+}
+
+function detectTraps(c){
+ const n=c.length;
+ if(n<40)return null;
+ const a=atr(c,14),k=3,recent=6;
+ const {highs,lows}=findSwings(c,k);
+ const A=i=>a[i]||a[n-1]||0;
+ const ev={sweepUp:null,sweepDown:null,resFail:null,supReclaim:null};
+
+ for(let t=n-recent;t<n;t++){
+  const cd=c[t],th=0.1*A(t);
+  for(const s of highs){
+   if(t-s.i<=k||t-s.i>80)continue;
+   let intact=true;
+   for(let j=s.i+1;j<t;j++)if(c[j].high>s.p){intact=false;break}
+   if(intact&&cd.high>s.p+th&&cd.close<s.p)ev.sweepUp=latestEvent([ev.sweepUp,{t,level:s.p,ext:cd.high}]);
+  }
+  for(const s of lows){
+   if(t-s.i<=k||t-s.i>80)continue;
+   let intact=true;
+   for(let j=s.i+1;j<t;j++)if(c[j].low<s.p){intact=false;break}
+   if(intact&&cd.low<s.p-th&&cd.close>s.p)ev.sweepDown=latestEvent([ev.sweepDown,{t,level:s.p,ext:cd.low}]);
+  }
+ }
+
+ for(const s of highs){
+  if(n-1-s.i>80)continue;
+  for(let b=s.i+k+1;b<n-1;b++){
+   if(c[b].close>s.p+0.05*A(b)){
+    for(let r=b+1;r<=Math.min(b+3,n-1);r++){
+     if(c[r].close<s.p){
+      if(r>=n-recent)ev.resFail=latestEvent([ev.resFail,{t:r,b,level:s.p}]);
+      break;
+     }
+    }
+    break;
+   }
+  }
+ }
+ for(const s of lows){
+  if(n-1-s.i>80)continue;
+  for(let b=s.i+k+1;b<n-1;b++){
+   if(c[b].close<s.p-0.05*A(b)){
+    for(let r=b+1;r<=Math.min(b+3,n-1);r++){
+     if(c[r].close>s.p){
+      if(r>=n-recent)ev.supReclaim=latestEvent([ev.supReclaim,{t:r,b,level:s.p}]);
+      break;
+     }
+    }
+    break;
+   }
+  }
+ }
+
+ const last=c[n-1].close,f=formatPrice,when=t=>formatDate(c[t].time);
+ const out={fake:null,bull:null,bear:null,sweep:null,sup:null,res:null,marks:[]};
+
+ if(ev.resFail)out.res={text:"Đóng cửa vượt kháng cự "+f(ev.resFail.level)+" nhưng nến "+when(ev.resFail.t)+" đóng cửa quay lại dưới mức này."};
+ if(ev.supReclaim)out.sup={text:"Đóng cửa thủng hỗ trợ "+f(ev.supReclaim.level)+" nhưng nến "+when(ev.supReclaim.t)+" đóng cửa thu hồi lên trên mức này."};
+
+ const sw=latestEvent([ev.sweepUp&&{...ev.sweepUp,dir:"up"},ev.sweepDown&&{...ev.sweepDown,dir:"down"}]);
+ if(sw)out.sweep={dir:sw.dir,text:(sw.dir==="up"
+  ?"Râu nến quét lên trên đỉnh "+f(sw.level)+" (cao nhất "+f(sw.ext)+") rồi đóng cửa lại dưới mức này"
+  :"Râu nến quét xuống dưới đáy "+f(sw.level)+" (thấp nhất "+f(sw.ext)+") rồi đóng cửa lại trên mức này")+" · nến "+when(sw.t)+"."};
+
+ const fk=latestEvent([ev.resFail&&{...ev.resFail,dir:"up"},ev.supReclaim&&{...ev.supReclaim,dir:"down"}]);
+ if(fk)out.fake={dir:fk.dir,text:(fk.dir==="up"
+  ?"Phá vỡ lên trên "+f(fk.level)+" thất bại, giá quay lại dưới mức này"
+  :"Phá vỡ xuống dưới "+f(fk.level)+" thất bại, giá quay lại trên mức này")+" · nến "+when(fk.t)+"."};
+
+ const bu=latestEvent([ev.resFail&&{...ev.resFail,why:"kháng cự bị phá giả"},ev.sweepUp&&{...ev.sweepUp,why:"quét thanh khoản phía trên"}].filter(e=>e&&last<e.level));
+ if(bu)out.bull={text:"Giá bị kéo lên trên "+f(bu.level)+" ("+bu.why+") rồi bị đẩy xuống; hiện giá "+f(last)+" dưới mức này. Phe mua đuổi có thể đang bị mắc kẹt · nến "+when(bu.t)+"."};
+
+ const be=latestEvent([ev.supReclaim&&{...ev.supReclaim,why:"hỗ trợ bị phá giả"},ev.sweepDown&&{...ev.sweepDown,why:"quét thanh khoản phía dưới"}].filter(e=>e&&last>e.level));
+ if(be)out.bear={text:"Giá bị kéo xuống dưới "+f(be.level)+" ("+be.why+") rồi bật lên; hiện giá "+f(last)+" trên mức này. Phe bán đuổi có thể đang bị mắc kẹt · nến "+when(be.t)+"."};
+
+ if(ev.resFail)out.marks.push({price:ev.resFail.level,label:"Kháng cự thất bại",color:"#e04b4b"});
+ if(ev.supReclaim)out.marks.push({price:ev.supReclaim.level,label:"Hỗ trợ thu hồi",color:"#0f9d6b"});
+ if(ev.sweepUp)out.marks.push({price:ev.sweepUp.level,label:"Quét đỉnh",color:"#b8861b"});
+ if(ev.sweepDown)out.marks.push({price:ev.sweepDown.level,label:"Quét đáy",color:"#b8861b"});
+ return out;
+}
+
+function renderTraps(res,stale){
+ const items=[["Fake","fake","warn"],["Bull","bull","warn"],["Bear","bear","bear"],["Sweep","sweep","sweep"],["Sup","sup","bear"],["Res","res","warn"]];
+ for(const [id,key,cls] of items){
+  const b=$("trap"+id+"B"),t=$("trap"+id+"T");
+  if(res===null){
+   b.textContent="—";b.className="badge";
+   t.textContent="Chưa đủ dữ liệu (cần ít nhất 40 nến).";
+   continue;
+  }
+  const r=res[key];
+  if(r){
+   b.textContent="PHÁT HIỆN";b.className="badge "+cls;
+   t.textContent=r.text;
+  }else{
+   b.textContent="Không";b.className="badge";
+   t.textContent="Không phát hiện trong 6 nến gần nhất.";
+  }
+ }
+ $("trapNote").textContent=res===null
+  ?"Chưa đủ dữ liệu để nhận diện bẫy."
+  :(stale?"Dữ liệu đã cũ, kết quả chỉ mang tính tham khảo lịch sử.":"Khung đang chọn: "+currentTimeframe+" · kiểm tra 6 nến gần nhất.");
+}
+
+function drawChart(candles,marks){
  const svg=$("candleChart");
  if(candles.length<2){
   svg.innerHTML='<text x="500" y="190" text-anchor="middle" fill="#8a9097">Không đủ dữ liệu để vẽ biểu đồ</text>';
@@ -665,6 +809,12 @@ function drawChart(candles){
   return `<polyline points="${pts.join(" ")}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
  }
  html+=makeLine(ma20All,"#b8861b")+makeLine(ma50All,"#3b82c4")+makeLine(ma200All,"#8e63c0");
+ (marks||[]).forEach(m=>{
+  if(m.price<minPrice||m.price>maxPrice)return;
+  const my=y(m.price);
+  html+=`<line x1="${left}" y1="${my}" x2="${width-right}" y2="${my}" stroke="${m.color}" stroke-width="1.2" stroke-dasharray="6 4" opacity=".85"/>
+  <text x="${left+4}" y="${my-4}" fill="${m.color}" font-size="11" font-weight="700">${m.label}</text>`;
+ });
  const lastC=visible[visible.length-1],ly=y(lastC.close);
  html+=`<line x1="${left}" y1="${ly}" x2="${width-right}" y2="${ly}" stroke="#b8861b" stroke-width="1" stroke-dasharray="2 4" opacity=".7"/>
  <rect x="${width-right+2}" y="${ly-10}" width="72" height="20" rx="5" fill="#b8861b"/>
@@ -694,6 +844,7 @@ function renderTimeframe(){
   $("mainSignal").textContent="WAIT";
   $("signalReason").textContent="Chưa có đủ dữ liệu lịch sử hợp lệ.";
   drawChart([]);
+  renderTraps(null,false);
   updateChecklist();
   return;
  }
@@ -714,11 +865,14 @@ function renderTimeframe(){
  const fresh=isRecentData(candles,currentTimeframe);
  $("indicatorStatus").textContent=fresh?"Dữ liệu gần đây":"Dữ liệu cũ";
  $("indicatorStatus").className="value "+(fresh?"green":"red");
- drawChart(candles);
+ const traps=detectTraps(candles);
+ drawChart(candles,traps?traps.marks:[]);
+ renderTraps(traps,!fresh);
  $("mainSignal").textContent="WAIT";
- $("signalReason").textContent=!fresh
+ $("signalReason").textContent=(!fresh
   ?"Dữ liệu "+currentTimeframe+" đã cũ. Chờ dữ liệu mới."
-  :"Chưa có xác nhận DXY, lợi suất trái phiếu Mỹ và lịch kinh tế. Chưa xác nhận lệnh.";
+  :"Chưa có xác nhận DXY, lợi suất trái phiếu Mỹ và lịch kinh tế. Chưa xác nhận lệnh.")
+  +(traps&&["fake","bull","bear","sweep","sup","res"].some(k=>traps[k])?" ⚠ Có cảnh báo bẫy giao dịch, xem mục Nhận diện bẫy.":"");
  updateChecklist();
 }
 
