@@ -148,7 +148,11 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
    <button onclick="loadHistory()">Tải H4 · 6 tháng</button>
    <button onclick="loadH1()">Tải H1 · 6 tháng</button>
   </div>
-  <div class="small muted">Nguồn dữ liệu: AlgoSpecial; tự chuyển sang Binance PAXG/USDT khi AlgoSpecial cũ. Hệ thống không tự tạo nến khi thiếu dữ liệu.</div>
+  <div class="actions" style="margin-top:0">
+   <input id="tdKey" type="password" autocomplete="off" placeholder="Twelve Data API key (tùy chọn)" style="max-width:340px;margin:0">
+   <button onclick="saveKey()">Lưu key</button>
+  </div>
+  <div class="small muted">Thứ tự nguồn: Twelve Data XAU/USD (nếu có key) → AlgoSpecial → Binance PAXG/USDT. Key chỉ lưu trong trình duyệt của bạn. Hệ thống không tự tạo nến khi thiếu dữ liệu.</div>
  </section>
 
  <section class="card">
@@ -272,6 +276,20 @@ let currentTimeframe="H4",loadingH4=false,loadingH1=false;
 const BINANCE_KLINES="https://api.binance.com/api/v3/klines";
 const BINANCE_PRICE="https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT";
 let sourceH4="AlgoSpecial",sourceH1="AlgoSpecial";
+const TD_URL="https://api.twelvedata.com";
+let lastTdPriceTime=0;
+
+function getKey(){try{return localStorage.getItem("td_key")||""}catch(e){return ""}}
+function saveKey(){
+ const v=$("tdKey").value.trim();
+ try{if(v)localStorage.setItem("td_key",v);else localStorage.removeItem("td_key")}catch(e){}
+ $("tdKey").value="";
+ initKeyBox();
+ refreshAll();
+}
+function initKeyBox(){
+ $("tdKey").placeholder=getKey()?"Đã lưu key ✓ (nhập key mới để thay, để trống rồi Lưu để xóa)":"Twelve Data API key (tùy chọn)";
+}
 
 function $(id){return document.getElementById(id)}
 function dateString(date){
@@ -328,6 +346,19 @@ async function updateGold(){
   $("goldPrice").textContent=formatPrice(price);
   $("goldUpdate").textContent="Nguồn XAUS · Cập nhật: "+new Date().toLocaleString("vi-VN");
  }catch(error){
+  const key=getKey();
+  if(key&&Date.now()-lastTdPriceTime>300000){
+   lastTdPriceTime=Date.now();
+   try{
+    const r=await fetch(TD_URL+"/price?symbol=XAU/USD&apikey="+encodeURIComponent(key),{cache:"no-store"});
+    const j=await r.json();
+    const p=Number(j.price);
+    if(!Number.isFinite(p))throw new Error(j.message||"Twelve Data không có giá");
+    $("goldPrice").textContent=formatPrice(p);
+    $("goldUpdate").textContent="Nguồn Twelve Data XAU/USD · XAUS lỗi: "+error.message+" · "+new Date().toLocaleString("vi-VN");
+    return;
+   }catch(e1){console.error(e1)}
+  }
   try{
    const r=await fetch(BINANCE_PRICE,{cache:"no-store"});
    if(!r.ok)throw new Error("Binance HTTP "+r.status);
@@ -413,15 +444,37 @@ async function fetchBinance(tf){
   .filter(c=>[c.open,c.high,c.low,c.close].every(Number.isFinite)));
 }
 
+async function fetchTwelve(tf,key){
+ const interval=tf==="H4"?"4h":"1h";
+ const url=TD_URL+"/time_series?symbol=XAU/USD&interval="+interval+"&outputsize=1000&timezone=UTC&order=ASC&apikey="+encodeURIComponent(key);
+ const r=await fetch(url,{cache:"no-store"});
+ const j=await r.json();
+ if(j.status==="error"||!Array.isArray(j.values))throw new Error(String(j.message||("HTTP "+r.status)).slice(0,120));
+ return uniqueCandles(j.values.map(v=>({
+  time:new Date(String(v.datetime).replace(" ","T")+"Z"),
+  open:+v.open,high:+v.high,low:+v.low,close:+v.close,volume:+(v.volume||0)
+ })).filter(c=>[c.open,c.high,c.low,c.close].every(Number.isFinite)&&!Number.isNaN(c.time.getTime())));
+}
+
 async function getSeries(tf,progress){
+ let tdNote="";
+ const key=getKey();
+ if(key){
+  try{
+   if(progress)progress(tf+" · Twelve Data XAU/USD");
+   const d=await fetchTwelve(tf,key);
+   if(d.length>=2&&isRecentData(d,tf))return {data:d,source:"Twelve Data XAU/USD",note:"",errors:[]};
+   tdNote=" · Twelve Data chưa có dữ liệu mới";
+  }catch(e){tdNote=" · Twelve Data lỗi: "+e.message}
+ }
  const result=await fetchPeriodRange(HISTORY_DAYS,tf,progress);
- let data=result.data,source="AlgoSpecial",note="";
+ let data=result.data,source="AlgoSpecial",note=tdNote;
  if(!isRecentData(data,tf)){
   try{
    const b=await fetchBinance(tf);
    if(b.length>=2&&isRecentData(b,tf)){
     data=b;source="Binance PAXG/USDT";
-    note=" · AlgoSpecial đã cũ, tự chuyển sang Binance (giá tham khảo, chênh lệch nhỏ so với XAUUSD)";
+    note=tdNote+" · AlgoSpecial đã cũ, tự chuyển sang Binance (giá tham khảo, chênh lệch nhỏ so với XAUUSD)";
    }
   }catch(e){console.error(e)}
  }
@@ -562,11 +615,16 @@ function getSupportResistance(candles){
  const recent=candles.slice(-30);
  return {support:Math.min(...recent.map(c=>c.low)),resistance:Math.max(...recent.map(c=>c.high))};
 }
+function marketClosedNow(){
+ const d=new Date(),day=d.getUTCDay(),h=d.getUTCHours();
+ return day===6||(day===5&&h>=22)||(day===0&&h<22);
+}
 function isRecentData(candles,timeframe){
  if(!candles.length)return false;
  const age=(Date.now()-candles[candles.length-1].time.getTime())/3600000;
  const limits={H1:8,H4:36,D1:72,W1:240};
- return age>=-1&&age<=limits[timeframe];
+ const limit=limits[timeframe]+(marketClosedNow()?56:0);
+ return age>=-1&&age<=limit;
 }
 
 function drawChart(candles){
@@ -725,6 +783,7 @@ async function refreshAll(){
  }
 }
 
+initKeyBox();
 updateGold();
 setInterval(updateGold,60000);
 loadHistory().then(()=>loadH1());
