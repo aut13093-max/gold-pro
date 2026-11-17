@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>GOLD PRO · Quản trị</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#f6f4ee;--panel:#fff;--border:#ece6d8;--text:#1f242b;--muted:#8a9097;--gold:#b8861b;--gold2:#e2b24a;--green:#0f9d6b;--red:#e04b4b;--shadow:0 1px 2px rgba(60,45,10,.04),0 8px 28px rgba(60,45,10,.07)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 20px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+.logo{font-weight:900;letter-spacing:1px;font-size:18px}.logo span{color:var(--gold)}
+.wrap{max-width:1180px;margin:auto;padding:18px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}
+h3{margin:0 0 14px;font-size:14px;letter-spacing:.4px}
+button,input{font:inherit}
+button{border:1px solid var(--border);background:#fff;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer}
+button:hover{border-color:var(--gold2);color:var(--gold)}
+button.gold{background:linear-gradient(135deg,#e8bb55,#b8861b);color:#fff;border:0}
+input{width:100%;padding:11px;border:1px solid var(--border);border-radius:9px;margin:6px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.metric{background:#faf8f2;border:1px solid #f0ece1;border-radius:12px;padding:14px}
+.metric .l{font-size:10.5px;color:var(--muted);font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
+.metric .v{font-size:24px;font-weight:800}
+.small{font-size:12px;color:var(--muted)}
+.login{max-width:380px;margin:40px auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:middle}
+th{color:var(--muted);font-weight:700;font-size:12px}
+.tablewrap{overflow-x:auto}
+.badge{display:inline-block;font-size:11px;font-weight:900;padding:2px 9px;border-radius:99px;background:#eef0f2;color:#6d737a}
+.badge.pro{background:linear-gradient(135deg,#f0c765,#b8861b);color:#fff}
+.badge.admin{background:#e8f0fb;color:#3b82c4;margin-left:6px}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.err{color:var(--red)}
+.hide{display:none}
+svg{width:100%;height:auto;display:block}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">GOLD <span>PRO</span> · QUẢN TRỊ</div>
+ <div id="topRight" class="hide"><span class="small" id="who"></span> <button onclick="refresh()">↻ Làm mới</button> <button onclick="logout()">Đăng xuất</button> <a href="./" class="small">← Trang GOLD PRO</a></div>
+</header>
+<div class="wrap">
+
+ <div id="secLogin" class="card login hide">
+  <h3>ĐĂNG NHẬP QUẢN TRỊ</h3>
+  <label class="small">Email</label><input id="aEmail" type="email" autocomplete="email">
+  <label class="small">Mật khẩu</label><input id="aPass" type="password" autocomplete="current-password">
+  <div class="small err" id="aMsg" style="min-height:18px;margin-bottom:8px"></div>
+  <button class="gold" style="width:100%;padding:12px" onclick="login()">Đăng nhập</button>
+ </div>
+
+ <div id="secDeny" class="card hide">
+  <h3>KHÔNG CÓ QUYỀN</h3>
+  <div class="small">Tài khoản <b id="denyEmail"></b> chưa phải admin. Chạy lệnh <code>update public.gp_profiles set is_admin = true where email = '...';</code> trong Supabase SQL Editor, rồi tải lại trang.</div>
+  <p><button onclick="logout()">Đăng xuất</button></p>
+ </div>
+
+ <div id="secDash" class="hide">
+  <div class="small" id="status" style="margin-bottom:10px"></div>
+  <div class="card"><h3>THỐNG KÊ</h3><div class="grid" id="stats"></div></div>
+  <div class="card"><h3>TRUY CẬP 14 NGÀY QUA (UTC)</h3><div id="chart"></div>
+   <div class="small" style="margin-top:8px"><b style="color:#b8861b">■</b> Lượt truy cập &nbsp; <b style="color:#3b82c4">■</b> Khách khác nhau</div></div>
+  <div class="card">
+   <h3>THÀNH VIÊN</h3>
+   <input id="search" placeholder="Tìm theo email..." oninput="renderUsers()">
+   <div class="tablewrap"><table><thead><tr><th>Email</th><th>Gói</th><th>PRO đến</th><th>Đăng ký</th><th>Thao tác</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </div>
+ </div>
+</div>
+
+<script>
+"use strict";
+const SUPABASE_URL="https://uyfjyfxxfusoavrukxpy.supabase.co";
+const SUPABASE_KEY="sb_publishable_jdIZ9aAFNheIZ0VGUpIBrg_5sxtZ5oL";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let users=[];
+
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e}
+function show(name){
+ for(const id of ["secLogin","secDeny","secDash"])$(id).classList.add("hide");
+ $("sec"+name).classList.remove("hide");
+ $("topRight").classList.toggle("hide",name==="Login");
+}
+function isProNow(u){return u.plan==="PRO"&&(!u.pro_until||new Date(u.pro_until)>new Date())}
+function fmt(d){return d?new Date(d).toLocaleString("vi-VN",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"—"}
+
+async function boot(){
+ const {data}=await sb.auth.getSession();
+ if(!data.session){show("Login");return}
+ $("who").textContent=data.session.user.email||"";
+ try{await sb.rpc("gp_ensure_profile")}catch(e){}
+ const {data:p,error}=await sb.from("gp_profiles").select("*").eq("id",data.session.user.id).single();
+ if(error||!p||!p.is_admin){$("denyEmail").textContent=data.session.user.email||"";show("Deny");return}
+ show("Dash");
+ await refresh();
+}
+async function login(){
+ $("aMsg").textContent="";
+ const email=$("aEmail").value.trim(),password=$("aPass").value;
+ if(!email||!password){$("aMsg").textContent="Nhập email và mật khẩu.";return}
+ const {error}=await sb.auth.signInWithPassword({email,password});
+ if(error){$("aMsg").textContent=error.message;return}
+ boot();
+}
+async function logout(){await sb.auth.signOut();location.reload()}
+
+async function refresh(){
+ $("status").textContent="Đang tải...";
+ const [st,us]=await Promise.all([
+  sb.rpc("gp_admin_stats"),
+  sb.from("gp_profiles").select("*").order("created_at",{ascending:false}).limit(500)
+ ]);
+ if(st.error){$("status").textContent="Lỗi thống kê: "+st.error.message;return}
+ if(us.error){$("status").textContent="Lỗi danh sách thành viên: "+us.error.message;return}
+ users=us.data||[];
+ renderStats(st.data);
+ renderChart(st.data.daily||[]);
+ renderUsers();
+ $("status").textContent="Cập nhật lúc "+new Date().toLocaleString("vi-VN");
+}
+
+function renderStats(s){
+ const items=[["Tổng thành viên",s.total_users],["FREE",s.free_users],["PRO",s.pro_users],["Đăng ký hôm nay",s.new_today],["Đăng ký 7 ngày",s.new_7d],["Lượt truy cập hôm nay",s.visits_today],["Khách hôm nay",s.visitors_today],["Khách 7 ngày",s.visitors_7d],["Tổng lượt truy cập",s.visits_total]];
+ const box=$("stats");box.innerHTML="";
+ for(const [l,v] of items){
+  const m=el("div","metric");m.appendChild(el("div","l",l));m.appendChild(el("div","v",String(v??0)));box.appendChild(m);
+ }
+}
+
+function renderChart(daily){
+ const map=new Map(daily.map(d=>[d.day,d]));
+ const days=[];
+ const now=new Date();
+ for(let i=13;i>=0;i--){
+  const d=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()-i));
+  days.push(d.toISOString().slice(0,10));
+ }
+ const rows=days.map(k=>({day:k,visits:Number((map.get(k)||{}).visits||0),visitors:Number((map.get(k)||{}).visitors||0)}));
+ const max=Math.max(5,...rows.map(r=>r.visits));
+ const W=700,H=220,left=30,bottom=28,top=14,bw=(W-left)/rows.length;
+ let html=`<svg viewBox="0 0 ${W} ${H}">`;
+ for(let i=0;i<=4;i++){
+  const y=top+(H-top-bottom)*i/4,val=Math.round(max*(1-i/4));
+  html+=`<line x1="${left}" y1="${y}" x2="${W}" y2="${y}" stroke="#eee8d9"/><text x="2" y="${y+4}" font-size="10" fill="#8a9097">${val}</text>`;
+ }
+ rows.forEach((r,i)=>{
+  const x=left+i*bw+bw*0.12,w=bw*0.36;
+  const h1=(H-top-bottom)*r.visits/max,h2=(H-top-bottom)*r.visitors/max;
+  html+=`<rect x="${x}" y="${H-bottom-h1}" width="${w}" height="${h1}" fill="#b8861b" rx="2"/>`;
+  html+=`<rect x="${x+w+2}" y="${H-bottom-h2}" width="${w}" height="${h2}" fill="#3b82c4" rx="2"/>`;
+  html+=`<text x="${left+i*bw+bw/2}" y="${H-10}" font-size="9" text-anchor="middle" fill="#8a9097">${r.day.slice(5)}</text>`;
+ });
+ html+="</svg>";
+ $("chart").innerHTML=html;
+}
+
+function renderUsers(){
+ const q=$("search").value.trim().toLowerCase();
+ const body=$("rows");body.innerHTML="";
+ const list=users.filter(u=>!q||(u.email||"").toLowerCase().includes(q));
+ if(!list.length){const tr=el("tr");const td=el("td","small","Không có thành viên.");td.colSpan=5;tr.appendChild(td);body.appendChild(tr);return}
+ for(const u of list){
+  const tr=el("tr");
+  const tdE=el("td");tdE.appendChild(document.createTextNode(u.email||"(không email)"));
+  if(u.is_admin)tdE.appendChild(el("span","badge admin","ADMIN"));
+  tr.appendChild(tdE);
+  const pro=isProNow(u);
+  const tdP=el("td");tdP.appendChild(el("span","badge"+(pro?" pro":""),pro?"PRO":"FREE"));tr.appendChild(tdP);
+  tr.appendChild(el("td","small",pro?(u.pro_until?fmt(u.pro_until):"Vĩnh viễn"):"—"));
+  tr.appendChild(el("td","small",fmt(u.created_at)));
+  const tdA=el("td");const acts=el("div","acts");
+  for(const [label,mode] of [["PRO 30 ngày","30"],["PRO 365 ngày","365"],["PRO vĩnh viễn","forever"],["Về FREE","free"]]){
+   const b=el("button","",label);b.onclick=()=>setPlan(u,mode);acts.appendChild(b);
+  }
+  tdA.appendChild(acts);tr.appendChild(tdA);body.appendChild(tr);
+ }
+}
+
+async function setPlan(u,mode){
+ let plan="PRO",until=null;
+ if(mode==="free")plan="FREE";
+ else if(mode!=="forever"){
+  const days=mode==="30"?30:365;
+  const base=(u.pro_until&&new Date(u.pro_until)>new Date())?new Date(u.pro_until):new Date();
+  until=new Date(base.getTime()+days*86400000).toISOString();
+ }
+ const {data,error}=await sb.from("gp_profiles").update({plan,pro_until:until}).eq("id",u.id).select();
+ if(error){alert("Lỗi: "+error.message);return}
+ if(!data||!data.length){alert("Không cập nhật được (kiểm tra quyền admin)."); return}
+ await refresh();
+}
+
+boot();
+</script>
+</body>
+</html>
