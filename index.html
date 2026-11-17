@@ -102,6 +102,17 @@ input:focus,select:focus{border-color:var(--gold2);box-shadow:0 0 0 4px rgba(226
 .check{display:flex;align-items:center;gap:10px;margin:14px 0;font-size:13px;font-weight:600;color:#4a5058}
 .check input{width:auto;margin:0;accent-color:#b8861b}
 .plan-note{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--gold-light);color:#8a6416;font-size:12px;line-height:1.6}
+.auth-box{display:flex;align-items:center;gap:8px;margin-right:10px;flex-wrap:wrap}
+.auth-box button{padding:7px 12px}
+.plan-badge{font-size:11px;font-weight:900;padding:3px 10px;border-radius:99px}
+.plan-badge.pro{background:linear-gradient(135deg,#f0c765,#b8861b);color:#fff}
+.plan-badge.free{background:#eef0f2;color:#6d737a}
+.auth-email{font-size:12px;color:#6d737a;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.admin-link{font-size:12px;font-weight:800;color:var(--gold);text-decoration:none}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(20,18,10,.45);align-items:center;justify-content:center;padding:16px}
+.modal-card{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-card a{color:var(--gold);font-weight:700;font-size:12px}
+.msg-err{color:var(--red)}.msg-ok{color:var(--green)}
 footer{padding:26px 15px calc(26px + env(safe-area-inset-bottom,0px));text-align:center;color:var(--muted);font-size:11px}
 hr{border:0;border-top:1px solid var(--border);margin:14px 0}
 @media(max-width:800px){
@@ -113,6 +124,7 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
  .live{display:none}
 }
 @media(max-width:560px){
+ .auth-email{display:none}
  .grid2{grid-template-columns:1fr}
  .value{font-size:19px}
  .metric .value{font-size:15px}
@@ -132,6 +144,7 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
   </div>
  </div>
  <div class="head-right">
+  <div class="auth-box" id="authBox"></div>
   <span class="live">TRỰC TIẾP</span>
   <button class="refresh" id="refreshButton" onclick="refreshAll()">↻ Làm mới</button>
  </div>
@@ -186,6 +199,7 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
    <button class="active" data-tf="H4" onclick="selectTimeframe('H4')">4H</button>
    <button data-tf="D1" onclick="selectTimeframe('D1')">1D</button>
   </div>
+  <div class="status" id="proNotice" style="display:none;margin-bottom:12px"></div>
   <div class="small muted" id="chartInfo" style="margin-bottom:11px">Đang chờ dữ liệu...</div>
   <div class="chart-wrap">
    <svg id="candleChart" viewBox="0 0 1000 390" preserveAspectRatio="none">
@@ -301,6 +315,20 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
 
 <footer>GOLD PRO · Công cụ phân tích tham khảo · Không phải khuyến nghị đầu tư</footer>
 
+<div id="authModal" class="modal" style="display:none" onclick="if(event.target===this)closeAuth()">
+ <div class="modal-card">
+  <h3 class="section-title" id="authTitle">ĐĂNG NHẬP</h3>
+  <label>Email</label>
+  <input id="authEmail" type="email" autocomplete="email">
+  <label>Mật khẩu (ít nhất 6 ký tự)</label>
+  <input id="authPass" type="password" autocomplete="current-password">
+  <div class="small" id="authMsg" style="min-height:18px;margin-bottom:8px"></div>
+  <button class="btn-gold" id="authSubmit" onclick="submitAuth()">Đăng nhập</button>
+  <div style="margin-top:12px;text-align:center"><a href="#" id="authToggle" onclick="toggleAuth();return false">Chưa có tài khoản? Đăng ký</a> · <a href="#" onclick="closeAuth();return false">Đóng</a></div>
+ </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
 const SPOT_URL="https://xaus.com/api/v1/spot?compact=1";
@@ -317,6 +345,128 @@ const TF_BN={M15:"15m",H1:"1h",H4:"4h"};
 function sourceOf(tf){return tf==="H1"?sourceH1:tf==="M15"?sourceM15:sourceH4}
 const TD_URL="https://api.twelvedata.com";
 let lastTdPriceTime=0;
+
+const SUPABASE_URL="https://uyfjyfxxfusoavrukxpy.supabase.co";
+const SUPABASE_KEY="sb_publishable_jdIZ9aAFNheIZ0VGUpIBrg_5sxtZ5oL";
+let sb=null;
+try{if(window.supabase)sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY)}catch(e){console.error(e)}
+let currentUser=null,profile=null,authMode="login";
+
+function isPro(){
+ return !!(profile&&(profile.is_admin||(profile.plan==="PRO"&&(!profile.pro_until||new Date(profile.pro_until)>new Date()))));
+}
+function showPro(message){
+ const n=$("proNotice");
+ n.textContent=message;
+ n.style.display="block";
+}
+function hidePro(){$("proNotice").style.display="none"}
+function proHint(){return currentUser?"Liên hệ quản trị viên để nâng cấp PRO.":"Đăng ký tài khoản và nâng cấp PRO để sử dụng."}
+
+async function loadProfile(){
+ profile=null;
+ if(!sb||!currentUser)return;
+ try{
+  try{await sb.rpc("gp_ensure_profile")}catch(e){}
+  const {data,error}=await sb.from("gp_profiles").select("*").eq("id",currentUser.id).single();
+  if(!error)profile=data;
+  else console.error(error);
+ }catch(e){console.error(e)}
+}
+function renderAuth(){
+ const box=$("authBox");
+ box.innerHTML="";
+ if(!sb)return;
+ if(!currentUser){
+  const b1=document.createElement("button");b1.textContent="Đăng nhập";b1.onclick=()=>openAuth("login");
+  const b2=document.createElement("button");b2.textContent="Đăng ký";b2.onclick=()=>openAuth("register");
+  box.appendChild(b1);box.appendChild(b2);
+  return;
+ }
+ const badge=document.createElement("span");
+ badge.className="plan-badge "+(isPro()?"pro":"free");
+ badge.textContent=isPro()?"PRO":"FREE";
+ const em=document.createElement("span");em.className="auth-email";em.textContent=currentUser.email||"";
+ box.appendChild(badge);box.appendChild(em);
+ if(profile&&profile.is_admin){
+  const a=document.createElement("a");a.href="admin.html";a.className="admin-link";a.textContent="Admin";box.appendChild(a);
+ }
+ const out=document.createElement("button");out.textContent="Thoát";out.onclick=()=>{sb.auth.signOut()};
+ box.appendChild(out);
+}
+function openAuth(mode){
+ authMode=mode;
+ $("authMsg").textContent="";
+ $("authTitle").textContent=mode==="register"?"ĐĂNG KÝ":"ĐĂNG NHẬP";
+ $("authSubmit").textContent=mode==="register"?"Đăng ký":"Đăng nhập";
+ $("authToggle").textContent=mode==="register"?"Đã có tài khoản? Đăng nhập":"Chưa có tài khoản? Đăng ký";
+ $("authPass").autocomplete=mode==="register"?"new-password":"current-password";
+ $("authModal").style.display="flex";
+}
+function closeAuth(){$("authModal").style.display="none"}
+function toggleAuth(){openAuth(authMode==="login"?"register":"login")}
+function authMessage(text,isErr){
+ const m=$("authMsg");
+ m.textContent=text;
+ m.className="small "+(isErr?"msg-err":"msg-ok");
+}
+async function submitAuth(){
+ if(!sb){authMessage("Không kết nối được máy chủ thành viên.",true);return}
+ const email=$("authEmail").value.trim(),pw=$("authPass").value;
+ if(!email||pw.length<6){authMessage("Nhập email và mật khẩu (ít nhất 6 ký tự).",true);return}
+ authMessage("Đang xử lý...",false);
+ try{
+  if(authMode==="register"){
+   const {data,error}=await sb.auth.signUp({email,password:pw});
+   if(error)throw error;
+   if(data.session)closeAuth();
+   else authMessage("Đã đăng ký. Hãy mở email để xác nhận, rồi quay lại đăng nhập.",false);
+  }else{
+   const {error}=await sb.auth.signInWithPassword({email,password:pw});
+   if(error)throw error;
+   closeAuth();
+  }
+ }catch(e){authMessage(e.message||"Có lỗi xảy ra",true)}
+}
+function visitorId(){
+ try{
+  let v=localStorage.getItem("visitor_id");
+  if(!v){
+   v=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2);
+   localStorage.setItem("visitor_id",v);
+  }
+  return v;
+ }catch(e){return "anon"}
+}
+async function logVisit(){
+ if(!sb)return;
+ try{
+  if(sessionStorage.getItem("visit_logged"))return;
+  sessionStorage.setItem("visit_logged","1");
+  await sb.from("gp_visits").insert({user_id:currentUser?currentUser.id:null,visitor_id:visitorId(),page:location.pathname||"/"});
+ }catch(e){console.error(e)}
+}
+async function initAuth(){
+ renderAuth();
+ if(!sb)return;
+ try{
+  const {data}=await sb.auth.getSession();
+  currentUser=data.session?data.session.user:null;
+  await loadProfile();
+ }catch(e){console.error(e)}
+ renderAuth();
+ renderTimeframe();
+ logVisit();
+ sb.auth.onAuthStateChange((event,session)=>{
+  setTimeout(async()=>{
+   currentUser=session?session.user:null;
+   await loadProfile();
+   renderAuth();
+   if(!isPro()&&currentTimeframe==="M15")selectTimeframe("H4");
+   else renderTimeframe();
+  },0);
+ });
+}
 
 function getKey(){try{return localStorage.getItem("td_key")||""}catch(e){return ""}}
 function saveKey(){
@@ -807,6 +957,15 @@ function renderTraps(res,stale){
   :(stale?"Dữ liệu đã cũ, kết quả chỉ mang tính tham khảo lịch sử.":"Khung đang chọn: "+currentTimeframe+" · kiểm tra 6 nến gần nhất.");
 }
 
+function renderTrapsLocked(){
+ for(const id of ["Fake","Bull","Bear","Sweep","Sup","Res"]){
+  const b=$("trap"+id+"B"),t=$("trap"+id+"T");
+  b.textContent="PRO";b.className="badge sweep";
+  t.textContent="Dành cho thành viên PRO.";
+ }
+ $("trapNote").textContent="Nhận diện bẫy giao dịch dành cho thành viên PRO. "+proHint();
+}
+
 function drawChart(candles,marks){
  const svg=$("candleChart");
  if(candles.length<2){
@@ -964,6 +1123,13 @@ function renderSignal(sig,traps,tfl){
  const pb=$("planBox");
  pb.innerHTML="";
  lastPlan=sig.plan;
+ if(sig.plan&&!isPro()){
+  lastPlan=null;
+  const d=document.createElement("div");d.className="status";
+  d.textContent="Có kế hoạch lệnh ("+sig.plan.dir+") nhưng chi tiết vào lệnh, cắt lỗ và chốt lời dành cho thành viên PRO. "+proHint();
+  pb.appendChild(d);
+  return;
+ }
  if(!sig.plan){
   const d=document.createElement("div");d.className="status";
   d.textContent=sig.blocks.length?"Chưa có kế hoạch lệnh: "+sig.blocks.join("; ")+".":"Chưa có kế hoạch lệnh: điểm chưa đạt ±5.";
@@ -990,7 +1156,7 @@ function renderSignal(sig,traps,tfl){
 }
 
 function usePlan(){
- if(!lastPlan)return;
+ if(!lastPlan||!isPro())return;
  $("entryPrice").value=lastPlan.entry.toFixed(2);
  $("stopPrice").value=lastPlan.sl.toFixed(2);
  $("tradeDirection").value=lastPlan.dir;
@@ -1000,6 +1166,11 @@ function usePlan(){
 }
 
 function selectTimeframe(tf){
+ if(tf==="M15"&&!isPro()){
+  showPro("Khung 15M dành cho thành viên PRO. "+proHint());
+  return;
+ }
+ hidePro();
  currentTimeframe=tf;
  if(tf==="M15"&&!allM15.length&&!loadingM15)loadM15();
  document.querySelectorAll("[data-tf]").forEach(b=>b.classList.toggle("active",b.dataset.tf===tf));
@@ -1040,9 +1211,10 @@ function renderTimeframe(){
  const fresh=isRecentData(candles,currentTimeframe);
  $("indicatorStatus").textContent=fresh?"Dữ liệu gần đây":"Dữ liệu cũ";
  $("indicatorStatus").className="value "+(fresh?"green":"red");
- const traps=detectTraps(candles);
+ const traps=isPro()?detectTraps(candles):null;
  drawChart(candles,traps?traps.marks:[]);
- renderTraps(traps,!fresh);
+ if(isPro())renderTraps(traps,!fresh);
+ else renderTrapsLocked();
  const tfl=TF_LABEL[currentTimeframe]||currentTimeframe;
  renderSignal(computeSignal(candles,traps,fresh,tfl),traps,tfl);
  updateChecklist();
@@ -1103,7 +1275,7 @@ async function refreshAll(){
   await updateGold();
   await loadHistory();
   await loadH1();
-  if(currentTimeframe==="M15"||allM15.length)await loadM15();
+  if(isPro()&&(currentTimeframe==="M15"||allM15.length))await loadM15();
  }finally{
   button.disabled=false;
   button.textContent="↻ Làm mới";
@@ -1112,6 +1284,7 @@ async function refreshAll(){
 
 initKeyBox();
 $("newsBlock").checked=isNewsBlock();
+initAuth();
 updateGold();
 setInterval(updateGold,60000);
 loadHistory().then(()=>loadH1());
